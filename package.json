@@ -1,0 +1,28 @@
+{
+  "name": "puzlink",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tool to find patterns among sets of words",
+  "license": "UNLICENSED",
+  "author": "CJ Quines <cj@cjquines.com>",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [
+    "puzzles"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cjquines/puzlink.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cjquines/puzlink.js/issues"
+  },
+  "homepage": "https://github.com/cjquines/puzlink.js#readme",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
+  }
+}
