@@ -1,15 +1,13 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "rootDir": "src",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "outDir": "dist",
+    "module": "node16",
     "target": "esnext",
-    "sourceMap": true,
+    "strict": true,
+    "verbatimModuleSyntax": true,
     "declaration": true,
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true
+    "sourceMap": true,
+    "declarationMap": true,
+    "checkJs": true
   },
-  "include": ["src/index.ts"]
+  "include": ["*.js", "src/**/*.ts"]
 }
