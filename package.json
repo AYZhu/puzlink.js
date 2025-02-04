@@ -21,6 +21,9 @@
     "url": "https://github.com/cjquines/puzlink.js/issues"
   },
   "homepage": "https://github.com/cjquines/puzlink.js#readme",
+  "dependencies": {
+    "cromulence": "^0.4.1"
+  },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
     "@types/node": "^22.12.0",
