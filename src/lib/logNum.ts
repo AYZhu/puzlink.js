@@ -130,4 +130,31 @@ export class LogNum {
   static prod(values: LogNum[]) {
     return new LogNum(values.reduce((acc, x) => acc + x.data, 0));
   }
+
+  static binomialProb(successes: number, trials: number, frequency: LogNum) {
+    return LogNum.fromBinomial(trials, successes).mul(
+      frequency.pow(successes).mul(
+        LogNum.from(1)
+          .sub(frequency)
+          .pow(trials - successes),
+      ),
+    );
+  }
+
+  static binomialPValue(successes: number, trials: number, frequency: LogNum) {
+    const expected = trials * frequency.toNum();
+    const probs = [];
+
+    if (successes > expected) {
+      for (let i = expected; i <= successes; i++) {
+        probs.push(LogNum.binomialProb(i, trials, frequency));
+      }
+    } else {
+      for (let i = 1; i <= successes; i++) {
+        probs.push(LogNum.binomialProb(i, trials, frequency));
+      }
+    }
+
+    return LogNum.sum(probs);
+  }
 }
