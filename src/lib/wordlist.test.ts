@@ -18,7 +18,7 @@ describe("Wordlist", () => {
   });
 
   test("logProb", () => {
-    expect(words.logProb((_slug) => true).toNum()).toBeCloseTo(1);
+    expect(words.logProb(() => true).toNum()).toBeCloseTo(1);
     expect(words.logProb((slug) => slug.includes("a")).toNum()).toBeCloseTo(
       3 / 4,
     );

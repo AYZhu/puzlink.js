@@ -2,21 +2,23 @@
  * A class that uses a single bigint to store counts for each lowercase letter,
  * for fast-ish comparison.
  */
-export class LetterCounter {
-  private static bits = 5n;
-  private static mask = (1n << LetterCounter.bits) - 1n;
-  private static offsets = Array(26)
+export class LetterBitset {
+  private static readonly bits = 5n;
+  private static readonly mask = (1n << LetterBitset.bits) - 1n;
+  private static readonly offsets = Array(26)
     .fill(0)
-    .map((_, i) => LetterCounter.bits * BigInt(i));
-  private static letterMasks = LetterCounter.offsets.map((x) => 1n << x);
+    .map((_, i) => LetterBitset.bits * BigInt(i));
+  private static readonly letterMasks = LetterBitset.offsets.map(
+    (x) => 1n << x,
+  );
 
   /**
    * This is a (26 * 5)-bit integer; each 5-bit block is a count for a letter.
    * Unclear how efficient this'll be for different engines...
    */
-  data: bigint;
+  readonly data: bigint;
 
-  constructor(data = 0n) {
+  constructor(data: bigint) {
     this.data = data;
   }
 
@@ -32,42 +34,34 @@ export class LetterCounter {
   static from(slug: string) {
     let data = 0n;
     for (const char of slug) {
-      data += LetterCounter.letterMasks[this.toIndex(char)];
+      data += LetterBitset.letterMasks[this.toIndex(char)];
     }
-    return new LetterCounter(data);
+    return new LetterBitset(data);
   }
 
   index(letter: string) {
     return Number(
-      (this.data >> LetterCounter.offsets[LetterCounter.toIndex(letter)]) &
-        LetterCounter.mask,
+      (this.data >> LetterBitset.offsets[LetterBitset.toIndex(letter)]) &
+        LetterBitset.mask,
     );
   }
 
-  add(letter: string) {
-    this.data += LetterCounter.letterMasks[LetterCounter.toIndex(letter)];
-  }
-
-  sub(letter: string) {
-    this.data -= LetterCounter.letterMasks[LetterCounter.toIndex(letter)];
-  }
-
-  equals(other: LetterCounter) {
+  equals(other: LetterBitset) {
     return this.data === other.data;
   }
 
   /** If this + result == other, return result; else null. */
-  transaddOf(other: LetterCounter) {
+  transaddOf(other: LetterBitset) {
     const diff = this.data - other.data;
-    const index = LetterCounter.letterMasks.findIndex((mask) => diff === mask);
+    const index = LetterBitset.letterMasks.findIndex((mask) => diff === mask);
     if (index === -1) {
       return null;
     }
-    return LetterCounter.fromIndex(index);
+    return LetterBitset.fromIndex(index);
   }
 
   /** If this - result == other, return result; else null. */
-  transdeleteOf(other: LetterCounter) {
+  transdeleteOf(other: LetterBitset) {
     return other.transaddOf(this);
   }
 }

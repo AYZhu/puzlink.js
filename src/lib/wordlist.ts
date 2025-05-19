@@ -1,8 +1,10 @@
-import { Cromulence, loadWordlist, zipfToLogProb } from "cromulence";
-import { LetterCounter } from "./letterCounter.js";
+import { Cromulence, loadWordlist } from "cromulence";
+import { LetterBitset } from "./letterBitset.js";
 import { LogNum } from "./logNum.js";
 
 /**
+ * Info about the words in a wordlist.
+ *
  * We assume (as in `cromulence`) that words appearing in puzzles are
  * distributed via Zipf frequency.
  */
@@ -13,7 +15,7 @@ export class Wordlist {
   constructor(wordlist: Record<string, number>) {
     this.cromulence = new Cromulence(wordlist);
     for (const word of Object.keys(this.cromulence.wordlist)) {
-      this.letterCounters.set(LetterCounter.from(word).data, word);
+      this.letterCounters.set(LetterBitset.from(word).data, word);
     }
   }
 
@@ -31,11 +33,11 @@ export class Wordlist {
 
   /** Get the log prob that a wordlist item satisfies the given property. */
   logProb(property: (slug: string) => boolean) {
-    return this.reduce(LogNum.fromFraction(0, 1), (acc, slug, zipf) => {
+    return this.reduce(LogNum.from(0), (acc, slug, zipf) => {
       if (!property(slug)) {
         return acc;
       }
-      return acc.add(new LogNum(zipfToLogProb(zipf)));
+      return acc.add(LogNum.fromZipf(zipf));
     });
   }
 
@@ -51,14 +53,14 @@ export class Wordlist {
 
   /** Returns a word that's the anagram of the given slug, else null. */
   isAnagram(slug: string) {
-    return this.letterCounters.get(LetterCounter.from(slug).data) || null;
+    return this.letterCounters.get(LetterBitset.from(slug).data) ?? null;
   }
 
   /** Returns if slug is the transadd of other + letter, else null. */
   isTransadd(slug: string) {
-    const counter = LetterCounter.from(slug);
+    const counter = LetterBitset.from(slug);
     for (const [otherCount, other] of this.letterCounters) {
-      const letter = counter.transaddOf(new LetterCounter(otherCount));
+      const letter = counter.transaddOf(new LetterBitset(otherCount));
       if (letter) {
         return { other, letter };
       }
@@ -68,9 +70,9 @@ export class Wordlist {
 
   /** Returns if slug is the transdelete of other - letter, else null. */
   isTransdelete(slug: string) {
-    const counter = LetterCounter.from(slug);
+    const counter = LetterBitset.from(slug);
     for (const [otherCount, other] of this.letterCounters) {
-      const letter = counter.transdeleteOf(new LetterCounter(otherCount));
+      const letter = counter.transdeleteOf(new LetterBitset(otherCount));
       if (letter) {
         return { other, letter };
       }

@@ -10,23 +10,44 @@ describe("LogNum", () => {
     expect(LogNum.fromBinomial(4, 2).toNum()).toBeCloseTo(6);
   });
 
-  test("exp, mul, div", () => {
+  test("exp, log", () => {
+    expect(LogNum.from(0).exp().toNum()).toBeCloseTo(1);
+    expect(LogNum.from(1).log().toNum()).toBeCloseTo(0);
+  });
+
+  test("pow, mul, div", () => {
     expect(
       LogNum.fromFraction(1, 2)
-        .exp(2)
+        .pow(2)
         .mul(LogNum.fromFraction(1, 2))
         .div(LogNum.fromFraction(1, 8))
         .toNum(),
     ).toBeCloseTo(1);
   });
 
-  test("add", () => {
+  test("add, sub", () => {
     expect(
       LogNum.fromFraction(1, 2).add(LogNum.fromFraction(1, 4)).toNum(),
     ).toBeCloseTo(3 / 4);
+    expect(LogNum.fromFraction(1, 2).add(LogNum.from(0)).toNum()).toBeCloseTo(
+      1 / 2,
+    );
+
+    expect(
+      LogNum.fromFraction(1, 2).sub(LogNum.fromFraction(1, 3)).toNum(),
+    ).toBeCloseTo(1 / 6);
+    expect(LogNum.fromFraction(1, 2).sub(LogNum.from(0)).toNum()).toBeCloseTo(
+      1 / 2,
+    );
   });
 
-  test("sum", () => {
+  test("gt, lt", () => {
+    expect(LogNum.fromFraction(1, 2).gt(LogNum.fromFraction(1, 4))).toBe(true);
+
+    expect(LogNum.fromFraction(1, 2).lt(LogNum.fromFraction(1, 4))).toBe(false);
+  });
+
+  test("sum, prod", () => {
     expect(
       LogNum.sum([
         LogNum.fromFraction(1, 2),
@@ -34,5 +55,13 @@ describe("LogNum", () => {
         LogNum.fromFraction(1, 6),
       ]).toNum(),
     ).toBeCloseTo(1);
+
+    expect(
+      LogNum.prod([
+        LogNum.fromFraction(1, 2),
+        LogNum.fromFraction(1, 3),
+        LogNum.fromFraction(1, 6),
+      ]).toNum(),
+    ).toBeCloseTo(1 / 36);
   });
 });
