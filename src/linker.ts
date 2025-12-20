@@ -1,25 +1,22 @@
 import { LogNum } from "./lib/logNum.js";
 
 /**
- * A Link is a relationship between a set of words, with how strong it is
+ * A Link is a relationship between a *set* of words, with how strong it is
  * quantified via logProb.
  */
 type Link = Readonly<{
+  /** If given, overrides the name of the linker. */
+  name?: string;
   logProb: LogNum;
   description: readonly string[];
 }>;
 
-export const defaultLink: Link = {
-  logProb: LogNum.from(1),
-  description: [],
-};
-
 /**
- * A Linker is a function that takes a list of words and returns a Link.
+ * A Linker is a function that takes a list of words and returns Links.
  */
 export type Linker = Readonly<{
   name: string;
-  eval: (words: string[], ordered?: boolean) => Link;
+  eval: (words: string[], ordered?: boolean) => Link[];
 }>;
 
 /**
@@ -30,14 +27,16 @@ export function anyOfLinkers(linkers: Linker[]): Linker {
   return {
     name: `any of ${linkers.map((l) => l.name).join(", ")}`,
     eval: (...args) => {
-      const links = linkers.map((l) => l.eval(...args));
+      const links = linkers.flatMap((l) => l.eval(...args));
 
-      return {
-        logProb: LogNum.from(1).sub(
-          LogNum.prod(links.map((l) => LogNum.from(1).sub(l.logProb))),
-        ),
-        description: links.flatMap((l) => l.description),
-      };
+      return [
+        {
+          logProb: LogNum.from(1).sub(
+            LogNum.prod(links.map((l) => LogNum.from(1).sub(l.logProb))),
+          ),
+          description: links.flatMap((l) => l.description),
+        },
+      ];
     },
   };
 }
@@ -50,12 +49,14 @@ export function allOfLinkers(linkers: Linker[]): Linker {
   return {
     name: `all of ${linkers.map((l) => l.name).join(", ")}`,
     eval: (...args) => {
-      const links = linkers.map((l) => l.eval(...args));
+      const links = linkers.flatMap((l) => l.eval(...args));
 
-      return {
-        logProb: LogNum.prod(links.map((l) => l.logProb)),
-        description: links.flatMap((l) => l.description),
-      };
+      return [
+        {
+          logProb: LogNum.prod(links.map((l) => l.logProb)),
+          description: links.flatMap((l) => l.description),
+        },
+      ];
     },
   };
 }
