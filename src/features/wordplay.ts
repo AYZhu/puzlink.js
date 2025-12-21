@@ -1,8 +1,8 @@
-import type { Feature } from "./feature.js";
-import { booleanFeature } from "./feature.js";
-import { LETTERS } from "./lib/letterDistribution.js";
-import { LogNum } from "./lib/logNum.js";
-import type { Wordlist } from "./lib/wordlist.js";
+import type { Feature } from "../feature.js";
+import { booleanFeature } from "../feature.js";
+import { LETTERS } from "../lib/letterDistribution.js";
+import { LogNum } from "../lib/logNum.js";
+import type { Wordlist } from "../lib/wordlist.js";
 
 function prepend(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({

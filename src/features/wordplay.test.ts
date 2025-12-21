@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Wordlist } from "./lib/wordlist.js";
+import { Wordlist } from "../lib/wordlist.js";
 import { wordplayFeatures } from "./wordplay.js";
 
 describe("wordplayFeatures", () => {
