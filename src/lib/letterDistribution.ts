@@ -1,7 +1,7 @@
-import { cumulativeStdNormalProbability as normCdf } from "simple-statistics";
+import { Distribution } from "./distribution.js";
+import { LogCounter } from "./logCounter.js";
 import { LogNum } from "./logNum.js";
 import type { Wordlist } from "./wordlist.js";
-import { LogCounter } from "./logCounter.js";
 
 export const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
@@ -9,11 +9,10 @@ export const LETTERS = "abcdefghijklmnopqrstuvwxyz";
  * Info about the letter distribution of a wordlist.
  */
 export class LetterDistribution {
-  /** Letter frequencies across the wordlist. */
-  private readonly frequencies: ReadonlyMap<string, LogNum>;
+  readonly distribution: Distribution<string>;
 
   constructor(wordlist: Wordlist) {
-    this.frequencies = wordlist.reduce(
+    const frequencies = wordlist.reduce(
       new Map(Array.from(LETTERS).map((letter) => [letter, LogNum.from(0)])),
       (freqs, slug, zipf) => {
         const prob = LogNum.fromZipf(zipf);
@@ -24,42 +23,13 @@ export class LetterDistribution {
         return freqs;
       },
     );
-  }
-
-  private momentCache = new Map<number, LogNum>();
-
-  private moment(k: number): LogNum {
-    const cached = this.momentCache.get(k);
-    if (cached) {
-      return cached;
-    }
-
-    const result = LogNum.sum(
-      Array.from(this.frequencies.values()).map((freq) => freq.pow(k)),
-    );
-
-    this.momentCache.set(k, result);
-    return result;
-  }
-
-  /** Chi-squared test statistic against a slug's distribution. */
-  private chi2(slug: string): LogNum {
-    const counter = LogCounter.from(slug);
-    const n = counter.total;
-
-    return LogNum.sum(
-      Array.from(this.frequencies.entries()).map(([letter, freq]) => {
-        const nfreq = n.mul(freq);
-        return nfreq.absSub(counter.get(letter)).pow(2).div(nfreq);
-      }),
-    );
+    this.distribution = new Distribution(frequencies);
   }
 
   /** Log probability of a slug's distribution, via chi-squared. */
   prob(slug: string): LogNum {
-    const df = LETTERS.length - 1;
-    const z = (this.chi2(slug).toNum() - df) / Math.sqrt(2 * df);
-    return LogNum.from(1 - normCdf(z));
+    const counter = LogCounter.from(slug);
+    return this.distribution.prob(counter);
   }
 
   /** Over- and under-represented letters, at 3 sigma. */
@@ -68,25 +38,7 @@ export class LetterDistribution {
     low: Record<string, LogNum>;
   } {
     const counter = LogCounter.from(slug);
-    const n = counter.total;
-
-    const high: Record<string, LogNum> = {};
-    const low: Record<string, LogNum> = {};
-
-    for (const [letter, freq] of this.frequencies) {
-      const expected = n.mul(freq);
-      const actual = counter.get(letter);
-
-      if (expected.absSub(actual).pow(2).gt(LogNum.from(4))) {
-        if (expected.gt(actual)) {
-          high[letter] = expected.sub(actual);
-        } else {
-          low[letter] = actual.sub(expected);
-        }
-      }
-    }
-
-    return { high, low };
+    return this.distribution.outliers(counter);
   }
 
   /**
@@ -105,7 +57,7 @@ export class LetterDistribution {
           lengths.map((length) => LogNum.fromFraction(length - k, k + 1)),
         ),
     );
-    const p = this.moment(lengths.length).pow(common);
+    const p = this.distribution.moment(lengths.length).pow(common);
 
     return LogNum.from(1).sub(LogNum.fromExp(-p.toNum() * combos.toNum()));
   }

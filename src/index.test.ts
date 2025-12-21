@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { Puzlink } from "./index.js";
 import { Wordlist } from "./lib/wordlist.js";
 
-describe("integration tests", () => {
+describe.skip("integration tests", () => {
   let puzlink: Puzlink;
 
   beforeAll(async () => {

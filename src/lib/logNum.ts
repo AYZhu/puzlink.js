@@ -1,3 +1,4 @@
+import { gammaln } from "simple-statistics";
 import { zipfToLogProb } from "cromulence";
 
 /**
@@ -5,13 +6,13 @@ import { zipfToLogProb } from "cromulence";
  *
  * Follows the algorithm in <https://cran.r-project.org/web/packages/Rmpfr/vignettes/log1mexp-note.pdf>.
  */
-function log1mExp(x: number) {
+function log1mExp(x: number): number {
   return x > -Math.log(2) ? Math.log1p(-Math.exp(x)) : Math.log(-Math.expm1(x));
 }
 
 /**
- * A numerically-stable-ish log number. Operations represent operations on
- * the numbers, not the log numbers.
+ * A numerically-stable-ish log of a non-negative number. Operations represent
+ * operations on the numbers, not the log numbers.
  *
  * @example LogNum.from(2).add(LogNum.from(3)).toNum() // 5
  */
@@ -23,15 +24,15 @@ export class LogNum {
     this.data = data;
   }
 
-  static from(value: number) {
+  static from(value: number): LogNum {
     return new LogNum(Math.log(value));
   }
 
-  static fromExp(value: number) {
+  static fromExp(value: number): LogNum {
     return new LogNum(value);
   }
 
-  static fromFraction(numerator: number, denominator: number) {
+  static fromFraction(numerator: number, denominator: number): LogNum {
     return new LogNum(Math.log(numerator) - Math.log(denominator));
   }
 
@@ -58,47 +59,54 @@ export class LogNum {
     return result;
   }
 
-  static fromZipf(zipf: number) {
+  static fromZipf(zipf: number): LogNum {
     return new LogNum(zipfToLogProb(zipf));
   }
 
-  toNum() {
+  static fromFactorial(n: number): LogNum {
+    return new LogNum(gammaln(n + 1));
+  }
+
+  toNum(): number {
     return Math.exp(this.data);
   }
 
-  toLog() {
+  toLog(): number {
     return this.data;
   }
 
-  exp() {
+  exp(): LogNum {
     return new LogNum(Math.exp(this.data));
   }
 
-  log() {
+  log(): LogNum {
     return LogNum.from(this.data);
   }
 
-  pow(power: number) {
+  pow(power: number): LogNum {
     return new LogNum(this.data * power);
   }
 
-  mul(other: LogNum) {
+  mul(other: LogNum): LogNum {
     return new LogNum(this.data + other.data);
   }
 
-  div(other: LogNum) {
+  div(other: LogNum): LogNum {
     return new LogNum(this.data - other.data);
   }
 
-  add(other: LogNum) {
+  add(other: LogNum): LogNum {
     let [max, min] = [this.data, other.data];
     if (max < min) {
       [max, min] = [min, max];
     }
+    if (min === -Infinity) {
+      return new LogNum(max);
+    }
     return new LogNum(max + Math.log1p(Math.exp(min - max)));
   }
 
-  absSub(other: LogNum) {
+  absSub(other: LogNum): LogNum {
     let [max, min] = [this.data, other.data];
     if (max < min) {
       [max, min] = [min, max];
@@ -106,34 +114,41 @@ export class LogNum {
     return new LogNum(max + log1mExp(min - max));
   }
 
-  sub(other: LogNum) {
+  sub(other: LogNum): LogNum {
     if (this.lt(other)) {
       throw new Error(
         `log underflow: ${this.data.toString()} - ${other.data.toString()}`,
       );
     }
-    return this.absSub(other);
+    const [max, min] = [this.data, other.data];
+    return new LogNum(max + log1mExp(min - max));
   }
 
-  gt(other: LogNum) {
+  gt(other: LogNum): boolean {
     return this.data > other.data;
   }
 
-  lt(other: LogNum) {
+  lt(other: LogNum): boolean {
     return this.data < other.data;
   }
 
-  static sum(values: LogNum[]) {
+  static sum(values: LogNum[]): LogNum {
+    // Strip zeroes first:
+    values = values.filter((x) => x.data !== -Infinity);
     const max = Math.max(...values.map((x) => x.data));
     const expSum = values.reduce((acc, x) => acc + Math.exp(x.data - max), 0);
     return new LogNum(max + Math.log(expSum));
   }
 
-  static prod(values: LogNum[]) {
+  static prod(values: LogNum[]): LogNum {
     return new LogNum(values.reduce((acc, x) => acc + x.data, 0));
   }
 
-  static binomialProb(successes: number, trials: number, frequency: LogNum) {
+  static binomialProb(
+    successes: number,
+    trials: number,
+    frequency: LogNum,
+  ): LogNum {
     return LogNum.fromBinomial(trials, successes).mul(
       frequency.pow(successes).mul(
         LogNum.from(1)
@@ -143,7 +158,11 @@ export class LogNum {
     );
   }
 
-  static binomialPValue(successes: number, trials: number, frequency: LogNum) {
+  static binomialPValue(
+    successes: number,
+    trials: number,
+    frequency: LogNum,
+  ): LogNum {
     const expected = trials * frequency.toNum();
     const probs = [];
 
@@ -158,5 +177,9 @@ export class LogNum {
     }
 
     return LogNum.sum(probs);
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")](): string {
+    return `LogNum(${this.data.toFixed(3)}: ${this.toNum().toString()})`;
   }
 }

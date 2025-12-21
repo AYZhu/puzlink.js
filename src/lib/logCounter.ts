@@ -3,11 +3,10 @@ import { LogNum } from "./logNum.js";
 /** A map from items to log counts. */
 export class LogCounter<T extends PropertyKey> {
   private readonly counts: ReadonlyMap<T, LogNum>;
-  readonly total: LogNum;
 
-  constructor(counts: ReadonlyMap<T, LogNum>, total: LogNum) {
+  constructor(counts: ReadonlyMap<T, LogNum>, totalCache?: LogNum) {
     this.counts = counts;
-    this.total = total;
+    this.totalCache = totalCache;
   }
 
   static from(data: string): LogCounter<string>;
@@ -27,7 +26,32 @@ export class LogCounter<T extends PropertyKey> {
     );
   }
 
-  get(item: T) {
+  /** The number of distinct items. */
+  get distinct(): LogNum {
+    return LogNum.from(this.counts.size);
+  }
+
+  private totalCache?: LogNum;
+
+  /** The total number of all items. */
+  get total(): LogNum {
+    return (this.totalCache ??= LogNum.sum(Array.from(this.counts.values())));
+  }
+
+  /** The log count of the given item. */
+  get(item: T): LogNum {
     return this.counts.get(item) ?? LogNum.from(0);
+  }
+
+  /** Returns an iterable of [item, log count] pairs. */
+  entries(): IterableIterator<[T, LogNum]> {
+    return this.counts.entries();
+  }
+
+  /** Returns an iterable of [item, log probability] pairs. */
+  *frequencies(): IterableIterator<[T, LogNum]> {
+    for (const [item, count] of this.counts) {
+      yield [item, count.div(this.total)];
+    }
   }
 }

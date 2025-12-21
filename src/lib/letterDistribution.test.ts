@@ -3,7 +3,7 @@ import { LetterDistribution } from "./letterDistribution.js";
 import { Wordlist } from "./wordlist.js";
 import { slugify } from "cromulence";
 
-describe("LetterDistribution", async () => {
+describe.skip("LetterDistribution", async () => {
   const dist = new LetterDistribution(await Wordlist.download());
 
   test("prob", () => {

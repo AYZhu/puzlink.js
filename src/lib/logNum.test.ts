@@ -10,6 +10,10 @@ describe("LogNum", () => {
     expect(LogNum.fromBinomial(4, 2).toNum()).toBeCloseTo(6);
   });
 
+  test("fromFactorial", () => {
+    expect(LogNum.fromFactorial(4).toNum()).toBeCloseTo(24);
+  });
+
   test("exp, log", () => {
     expect(LogNum.from(0).exp().toNum()).toBeCloseTo(1);
     expect(LogNum.from(1).log().toNum()).toBeCloseTo(0);
@@ -26,6 +30,8 @@ describe("LogNum", () => {
   });
 
   test("add, sub", () => {
+    expect(LogNum.from(0).add(LogNum.from(0)).toNum()).toBeCloseTo(0);
+
     expect(
       LogNum.fromFraction(1, 2).add(LogNum.fromFraction(1, 4)).toNum(),
     ).toBeCloseTo(3 / 4);
@@ -48,6 +54,10 @@ describe("LogNum", () => {
   });
 
   test("sum, prod", () => {
+    expect(LogNum.sum([]).toNum()).toBeCloseTo(0);
+
+    expect(LogNum.sum([LogNum.from(42)]).toNum()).toBeCloseTo(42);
+
     expect(
       LogNum.sum([
         LogNum.fromFraction(1, 2),
@@ -55,6 +65,10 @@ describe("LogNum", () => {
         LogNum.fromFraction(1, 6),
       ]).toNum(),
     ).toBeCloseTo(1);
+
+    expect(LogNum.prod([]).toNum()).toBeCloseTo(1);
+
+    expect(LogNum.prod([LogNum.from(42)]).toNum()).toBeCloseTo(42);
 
     expect(
       LogNum.prod([

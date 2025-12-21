@@ -5,9 +5,19 @@ import { LogNum } from "./lib/logNum.js";
  * quantified via logProb.
  */
 export type Link = Readonly<{
-  /** If given, overrides the name of the linker. */
+  /** The top-level link name to report. Defaults to the name of the linker. */
   name?: string;
+  /**
+   * The log prob we'd expect to see this link, if each word was instead
+   * replaced with a random puzzle answer.
+   *
+   * Note that this should describe the log prob of the *name* of the link.
+   * A link with name "two distinct length values" should have the log prob
+   * that the words have *any two* distinct lengths, and the description
+   * should report more specifically what those lengths are.
+   */
   logProb: LogNum;
+  /** Any extra info to include in the link. Can be blank. */
   description: readonly string[];
 }>;
 
