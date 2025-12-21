@@ -4,7 +4,7 @@ import { LogNum } from "./lib/logNum.js";
  * A Link is a relationship between a *set* of words, with how strong it is
  * quantified via logProb.
  */
-type Link = Readonly<{
+export type Link = Readonly<{
   /** If given, overrides the name of the linker. */
   name?: string;
   logProb: LogNum;

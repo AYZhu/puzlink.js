@@ -1,30 +1,59 @@
 import type { Feature } from "../feature.js";
 import { booleanFeature } from "../feature.js";
 import { LETTERS } from "../lib/letterDistribution.js";
-import { LogNum } from "../lib/logNum.js";
 import type { Wordlist } from "../lib/wordlist.js";
 
-function prepend(wordlist: Wordlist, letter: string): Feature {
+function prependWith(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
     name: `can prepend ${letter}`,
     property: (word) => {
       const prepended = `${letter}${word}`;
       return wordlist.isWord(prepended)
-        ? `can prepend ${letter} to ${word} to get a word (${prepended})`
+        ? `${letter} + ${word} = ${prepended}`
         : null;
     },
     wordlist,
   });
 }
 
-function append(wordlist: Wordlist, letter: string): Feature {
+function prependAny(wordlist: Wordlist): Feature {
+  return booleanFeature({
+    name: "can prepend 1",
+    property: (word) => {
+      const prepended = wordlist.filterWords(
+        Array.from(LETTERS).map((letter) => `${letter}${word}`),
+      );
+      return prepended.length === 0
+        ? null
+        : `1 + ${word} = ${prepended.join(", ")}`;
+    },
+    wordlist,
+  });
+}
+
+function appendWith(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
     name: `can append ${letter}`,
     property: (word) => {
       const appended = `${word}${letter}`;
       return wordlist.isWord(appended)
-        ? `can append ${letter} to ${word} to get a word (${appended})`
+        ? `${word} + ${letter} = ${appended}`
         : null;
+    },
+    wordlist,
+  });
+}
+
+function appendAny(wordlist: Wordlist): Feature {
+  return booleanFeature({
+    name: "can append 1",
+    property: (word) => {
+      const appended = wordlist.filterWords(
+        Array.from(LETTERS).map((letter) => `${word}${letter}`),
+      );
+      return appended.length === 0
+        ? null
+        : `${word} + 1 = ${appended.join(", ")}`;
     },
     wordlist,
   });
@@ -34,13 +63,33 @@ function insertWith(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
     name: `can insert ${letter}`,
     property: (word) => {
+      const allInserted = [];
       for (let i = 0; i <= word.length; i++) {
-        const inserted = `${word.slice(0, i)}${letter}${word.slice(i)}`;
-        if (wordlist.isWord(inserted)) {
-          return `can insert ${letter} in ${word} to get a word (${inserted})`;
+        allInserted.push(`${word.slice(0, i)}${letter}${word.slice(i)}`);
+      }
+      const inserted = wordlist.filterWords(allInserted);
+      return inserted.length === 0
+        ? null
+        : `${word} insert ${letter} = ${inserted.join(", ")}`;
+    },
+    wordlist,
+  });
+}
+
+function insertAny(wordlist: Wordlist): Feature {
+  return booleanFeature({
+    name: "can insert 1",
+    property: (word) => {
+      const allInserted = [];
+      for (let i = 0; i <= word.length; i++) {
+        for (const letter of LETTERS) {
+          allInserted.push(`${word.slice(0, i)}${letter}${word.slice(i)}`);
         }
       }
-      return null;
+      const inserted = wordlist.filterWords(allInserted);
+      return inserted.length === 0
+        ? null
+        : `${word} insert 1 = ${inserted.join(", ")}`;
     },
     wordlist,
   });
@@ -48,11 +97,11 @@ function insertWith(wordlist: Wordlist, letter: string): Feature {
 
 function behead(wordlist: Wordlist): Feature {
   return booleanFeature({
-    name: "can behead",
+    name: "can behead 1",
     property: (word) => {
       const beheaded = word.slice(1);
       return wordlist.isWord(beheaded)
-        ? `can behead ${word} to get a word (${beheaded})`
+        ? `${word} behead 1 = ${beheaded}`
         : null;
     },
     wordlist,
@@ -61,11 +110,11 @@ function behead(wordlist: Wordlist): Feature {
 
 function curtail(wordlist: Wordlist): Feature {
   return booleanFeature({
-    name: "can curtail",
+    name: "can curtail 1",
     property: (word) => {
       const curtailed = word.slice(0, word.length - 1);
       return wordlist.isWord(curtailed)
-        ? `can curtail ${word} to get a word (${curtailed})`
+        ? `${word} curtail 1 = ${curtailed}`
         : null;
     },
     wordlist,
@@ -75,36 +124,75 @@ function curtail(wordlist: Wordlist): Feature {
 function deleteWith(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
     name: `can delete ${letter}`,
+    precondition: (word) => word.includes(letter),
     property: (word) => {
+      const allDeleted = [];
       for (let i = 0; i < word.length; i++) {
-        if (word[i] !== letter) {
-          continue;
-        }
-        const deleted = `${word.slice(0, i)}${word.slice(i + 1)}`;
-        if (wordlist.isWord(deleted)) {
-          return `can delete ${letter} in ${word} to get a word (${deleted})`;
+        if (word[i] === letter) {
+          allDeleted.push(`${word.slice(0, i)}${word.slice(i + 1)}`);
         }
       }
-      return null;
+      const deleted = wordlist.filterWords(allDeleted);
+      return deleted.length === 0
+        ? null
+        : `${word} delete ${letter} = ${deleted.join(", ")}`;
     },
     wordlist,
   });
 }
 
-function change(wordlist: Wordlist, letter: string): Feature {
+function deleteAny(wordlist: Wordlist): Feature {
+  return booleanFeature({
+    name: "can delete 1",
+    property: (word) => {
+      const allDeleted = [];
+      for (let i = 0; i < word.length; i++) {
+        allDeleted.push(`${word.slice(0, i)}${word.slice(i + 1)}`);
+      }
+      const deleted = wordlist.filterWords(allDeleted);
+      return deleted.length === 0
+        ? null
+        : `${word} delete 1 = ${deleted.join(", ")}`;
+    },
+    wordlist,
+  });
+}
+
+function changeTo(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
     name: `can change to ${letter}`,
     property: (word) => {
+      const allChanged = [];
       for (let i = 0; i < word.length; i++) {
-        if (word[i] === letter) {
-          continue;
-        }
-        const changed = `${word.slice(0, i)}${letter}${word.slice(i + 1)}`;
-        if (wordlist.isWord(changed)) {
-          return `can change to ${letter} in ${word} to get a word (${changed})`;
+        if (word[i] !== letter) {
+          allChanged.push(`${word.slice(0, i)}${letter}${word.slice(i + 1)}`);
         }
       }
-      return null;
+      const changed = wordlist.filterWords(allChanged);
+      return changed.length === 0
+        ? null
+        : `${word} change to ${letter} = ${changed.join(", ")}`;
+    },
+    wordlist,
+  });
+}
+
+function changeAny(wordlist: Wordlist): Feature {
+  return booleanFeature({
+    name: "can change 1",
+    property: (word) => {
+      const allChanged = [];
+      for (let i = 0; i < word.length; i++) {
+        for (const letter of LETTERS) {
+          if (word[i] !== letter) {
+            allChanged.push(`${word.slice(0, i)}${letter}${word.slice(i + 1)}`);
+          }
+        }
+      }
+      const changed = wordlist.filterWords(allChanged);
+      return changed.length === 0
+        ? null
+        : `${word} change 1 = ${changed.join(", ")}`;
     },
     wordlist,
   });
@@ -116,7 +204,7 @@ function reverse(wordlist: Wordlist): Feature {
     property: (word) => {
       const reversed = word.split("").reverse().join("");
       return wordlist.isWord(reversed)
-        ? `can reverse ${word} to get a word (${reversed})`
+        ? `${word} reversed = ${reversed}`
         : null;
     },
     wordlist,
@@ -127,8 +215,10 @@ function anagram(wordlist: Wordlist): Feature {
   return booleanFeature({
     name: "is anagram",
     property: (word) => {
-      const anagrammed = wordlist.isAnagram(word);
-      return anagrammed ? `${word} has an anagram (${anagrammed})` : null;
+      const anagrams = wordlist.anagrams(word);
+      return anagrams.length === 0
+        ? null
+        : `${word} anagrammed = ${anagrams.join(", ")}`;
     },
     wordlist,
   });
@@ -136,12 +226,31 @@ function anagram(wordlist: Wordlist): Feature {
 
 function transaddWith(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
-    name: `has transadd with ${letter}`,
+    name: `has transadd ${letter}`,
     property: (word) => {
-      const transadded = wordlist.isAnagram(`${word}${letter}`, false);
-      return transadded
-        ? `${word} has a transadd with ${letter} (${transadded})`
-        : null;
+      const transadds = wordlist.anagrams(`${word}${letter}`, false);
+      return transadds.length === 0
+        ? null
+        : `${word} transadd ${letter} = ${transadds.join(", ")}`;
+    },
+    wordlist,
+  });
+}
+
+function transaddAny(wordlist: Wordlist): Feature {
+  return booleanFeature({
+    name: "has transadd 1",
+    property: (word) => {
+      const allTransadds = [];
+      for (const letter of LETTERS) {
+        for (const transadd of wordlist.anagrams(`${word}${letter}`, false)) {
+          allTransadds.push(transadd);
+        }
+      }
+      const transadds = wordlist.filterWords(allTransadds);
+      return transadds.length === 0
+        ? null
+        : `${word} transadd 1 = ${transadds.join(", ")}`;
     },
     wordlist,
   });
@@ -149,62 +258,70 @@ function transaddWith(wordlist: Wordlist, letter: string): Feature {
 
 function transdeleteWith(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
-    name: `has transdelete with ${letter}`,
+    name: `has transdelete ${letter}`,
+    precondition: (word) => word.includes(letter),
     property: (word) => {
-      for (let i = 0; i < word.length; i++) {
-        if (word[i] === letter) {
-          const transdeleted = wordlist.isAnagram(
-            `${word.slice(0, i)}${word.slice(i + 1)}`,
-            false,
-          );
-          if (transdeleted) {
-            return `${word} has a transdelete with ${letter} (${transdeleted})`;
-          }
+      if (!word.includes(letter)) {
+        return null;
+      }
+      const transdeletes = wordlist.anagrams(word.replace(letter, ""), false);
+      return transdeletes.length === 0
+        ? null
+        : `${word} transdelete ${letter} = ${transdeletes.join(", ")}`;
+    },
+    wordlist,
+  });
+}
+
+function transdeleteAny(wordlist: Wordlist): Feature {
+  return booleanFeature({
+    name: "has transdelete 1",
+    property: (word) => {
+      const allTransdeletes = [];
+      for (const letter of new Set(word)) {
+        for (const transdelete of wordlist.anagrams(
+          word.replace(letter, ""),
+          false,
+        )) {
+          allTransdeletes.push(transdelete);
         }
       }
-      return null;
+      const transdeletes = wordlist.filterWords(allTransdeletes);
+      return transdeletes.length === 0
+        ? null
+        : `${word} transdelete 1 = ${transdeletes.join(", ")}`;
     },
     wordlist,
   });
 }
 
 function withEveryLetter(
-  name: string,
   feature: (wordlist: Wordlist, letter: string) => Feature,
   wordlist: Wordlist,
 ): Feature[] {
-  const features = Array.from(LETTERS).map((letter) =>
-    feature(wordlist, letter),
-  );
-  const combined: Feature = {
-    name,
-    logProb: LogNum.sum(features.map((f) => f.logProb)),
-    property: (word) => {
-      for (const feature of features) {
-        const property = feature.property(word);
-        if (property) {
-          return property;
-        }
-      }
-      return null;
-    },
-  };
-  return [...features, combined];
+  return Array.from(LETTERS).map((letter) => feature(wordlist, letter));
 }
 
 /** Features for qhex-style wordplay. */
 export function wordplayFeatures(wordlist: Wordlist): Feature[] {
   return [
-    ...withEveryLetter("can prepend letter", prepend, wordlist),
-    ...withEveryLetter("can append letter", append, wordlist),
-    ...withEveryLetter("can insert letter", insertWith, wordlist),
+    ...withEveryLetter(prependWith, wordlist),
+    prependAny(wordlist),
+    ...withEveryLetter(appendWith, wordlist),
+    appendAny(wordlist),
+    ...withEveryLetter(insertWith, wordlist),
+    insertAny(wordlist),
     behead(wordlist),
     curtail(wordlist),
-    ...withEveryLetter("can delete letter", deleteWith, wordlist),
-    ...withEveryLetter("can change letter", change, wordlist),
+    ...withEveryLetter(deleteWith, wordlist),
+    deleteAny(wordlist),
+    ...withEveryLetter(changeTo, wordlist),
+    changeAny(wordlist),
     reverse(wordlist),
     anagram(wordlist),
-    ...withEveryLetter("has transadd", transaddWith, wordlist),
-    ...withEveryLetter("has transdelete", transdeleteWith, wordlist),
+    ...withEveryLetter(transaddWith, wordlist),
+    transaddAny(wordlist),
+    ...withEveryLetter(transdeleteWith, wordlist),
+    transdeleteAny(wordlist),
   ];
 }

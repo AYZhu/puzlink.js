@@ -1,3 +1,4 @@
+import { knownLogProbs } from "./data/knownLogProbs.js";
 import { LogNum } from "./lib/logNum.js";
 import type { Wordlist } from "./lib/wordlist.js";
 import type { Linker } from "./linker.js";
@@ -30,7 +31,7 @@ export function featureLinker(feature: Feature): Linker {
     eval: (words) => {
       const description = words.flatMap((word) => {
         const result = feature.property(word);
-        return result ? [`${word}: ${result}`] : [];
+        return result ? [result] : [];
       });
       const logProb = LogNum.binomialPValue(
         description.length,
@@ -51,75 +52,26 @@ export function featureLinker(feature: Feature): Linker {
 /** Create a feature for a boolean property of a word. */
 export function booleanFeature({
   name,
+  precondition,
   property,
   wordlist,
 }: {
   name: string;
+  /** Sometimes the logprob only makes sense if a precondition holds: */
+  precondition?: (word: string) => boolean;
   property: (word: string) => string | null;
   wordlist: Wordlist;
 }): Feature {
-  return {
-    name,
-    logProb: wordlist.logProb((word) => property(word) !== null),
-    property,
-  };
-}
-
-/**
- * Create a binomial linker for a set of features. Returns a binomial link for
- * satisfying any feature in the set.
- */
-export function anyOfFeatureLinker({
-  name,
-  features,
-}: {
-  name: string;
-  features: Feature[];
-}): Linker {
-  return {
-    name,
-    eval: (words) => {
-      const successProb = LogNum.from(1).sub(
-        LogNum.prod(features.map((f) => LogNum.from(1).sub(f.logProb))),
-      );
-      const description = words.flatMap((word) => {
-        const properties = features.flatMap((feature) => {
-          const property = feature.property(word);
-          return property ? [property] : [];
-        });
-        return properties.length > 0
-          ? [`${word}: ${properties.join(", ")}`]
-          : [];
-      });
-      const logProb = LogNum.binomialPValue(
-        description.length,
-        words.length,
-        successProb,
-      );
-      return [
-        {
-          name: `${name} (${description.length.toString()} / ${words.length.toString()})`,
-          description,
-          logProb,
-        },
-      ];
-    },
-  };
-}
-
-/**
- * Return the linker for a set of features, and a linker for satisfying any
- * feature.
- */
-export function withAnyOfFeatureLinker({
-  name,
-  features,
-}: {
-  name: string;
-  features: Feature[];
-}): Linker[] {
-  return [
-    ...features.map((feature) => featureLinker(feature)),
-    anyOfFeatureLinker({ name, features }),
-  ];
+  let logProb = knownLogProbs[name];
+  if (logProb !== undefined) {
+    return { name, logProb, property };
+  }
+  logProb = wordlist.logProb((word) => property(word) !== null);
+  if (precondition) {
+    const preconditionLogProb = wordlist.logProb(precondition);
+    logProb = logProb.div(preconditionLogProb);
+  }
+  const feature = { name, logProb, property };
+  console.log(`"${name}": LogNum.fromExp(${logProb.toLog().toString()}),`);
+  return feature;
 }

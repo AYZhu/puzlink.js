@@ -9,6 +9,7 @@ export const LETTERS = "abcdefghijklmnopqrstuvwxyz";
  * Info about the letter distribution of a wordlist.
  */
 export class LetterDistribution {
+  /** Letter frequencies across the wordlist. */
   private readonly frequencies: ReadonlyMap<string, LogNum>;
 
   constructor(wordlist: Wordlist) {
@@ -18,7 +19,6 @@ export class LetterDistribution {
         const prob = LogNum.fromZipf(zipf);
         const length = LogNum.from(slug.length);
         for (const letter of slug) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           freqs.set(letter, freqs.get(letter)!.add(prob.div(length)));
         }
         return freqs;

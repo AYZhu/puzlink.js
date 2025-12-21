@@ -34,14 +34,14 @@ export class LetterBitset {
   static from(slug: string) {
     let data = 0n;
     for (const char of slug) {
-      data += LetterBitset.letterMasks[this.toIndex(char)];
+      data += LetterBitset.letterMasks[this.toIndex(char)]!;
     }
     return new LetterBitset(data);
   }
 
   index(letter: string) {
     return Number(
-      (this.data >> LetterBitset.offsets[LetterBitset.toIndex(letter)]) &
+      (this.data >> LetterBitset.offsets[LetterBitset.toIndex(letter)]!) &
         LetterBitset.mask,
     );
   }

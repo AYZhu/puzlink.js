@@ -7,7 +7,8 @@
     "declaration": true,
     "sourceMap": true,
     "declarationMap": true,
-    "checkJs": true
+    "checkJs": true,
+    "noUncheckedIndexedAccess": true
   },
   "include": ["*.js", "src/**/*.ts"]
 }

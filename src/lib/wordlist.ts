@@ -1,7 +1,6 @@
 import { Cromulence, loadWordlist, logProbToZipf } from "cromulence";
 import { LetterBitset } from "./letterBitset.js";
 import { LogNum } from "./logNum.js";
-import { LETTERS } from "./letterDistribution.js";
 
 /**
  * Info about the words in a wordlist.
@@ -38,11 +37,7 @@ export class Wordlist {
     const logFrac = LogNum.fromFraction(1, words.length);
     const wordlist: Record<string, LogNum> = {};
     for (const word of words) {
-      if (word in wordlist) {
-        wordlist[word] = wordlist[word].add(logFrac);
-      } else {
-        wordlist[word] = logFrac;
-      }
+      wordlist[word] = wordlist[word] ? wordlist[word].add(logFrac) : logFrac;
     }
     return new Wordlist(
       Object.fromEntries(
@@ -72,9 +67,23 @@ export class Wordlist {
     });
   }
 
+  /** Returns the zipf of the given slug: bigger = more common. */
+  zipf(slug: string): number {
+    return this.cromulence.zipf(slug);
+  }
+
   /** Returns true if the given slug is in the wordlist. */
   isWord(slug: string): boolean {
     return slug in this.cromulence.wordlist;
+  }
+
+  /** Filters for slugs in the wordlist, sorted from most common to least. */
+  filterWords(slugs: string[]): string[] {
+    return slugs
+      .map((slug) => [slug, this.cromulence.wordlist[slug]] as const)
+      .filter((t): t is [string, number] => t[1] !== undefined)
+      .sort((a, b) => b[1] - a[1])
+      .map((t) => t[0]);
   }
 
   /** Returns true if the given phrase is in the wordlist. */
@@ -89,8 +98,17 @@ export class Wordlist {
       return null;
     }
     if (!strict) {
-      return anagrams[0];
+      return anagrams[0] ?? null;
     }
     return anagrams.find((word) => word !== slug) ?? null;
+  }
+
+  /** Returns the anagrams of a given slug, sorted from most common to least. */
+  anagrams(slug: string, strict = true): string[] {
+    return (this.letterCounters.get(LetterBitset.from(slug).data) ?? [])
+      .filter((word) => !strict || word !== slug)
+      .map((word) => [word, this.cromulence.wordlist[word]!] as const)
+      .sort((a, b) => b[1] - a[1])
+      .map((t) => t[0]);
   }
 }

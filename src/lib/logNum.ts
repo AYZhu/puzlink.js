@@ -108,7 +108,9 @@ export class LogNum {
 
   sub(other: LogNum) {
     if (this.lt(other)) {
-      throw new Error("log underflow");
+      throw new Error(
+        `log underflow: ${this.data.toString()} - ${other.data.toString()}`,
+      );
     }
     return this.absSub(other);
   }
