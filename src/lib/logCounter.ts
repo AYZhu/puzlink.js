@@ -31,7 +31,7 @@ export class LogCounter<T extends PropertyKey> {
     return LogNum.from(this.counts.size);
   }
 
-  private totalCache?: LogNum;
+  private totalCache: LogNum | undefined;
 
   /** The total number of all items. */
   get total(): LogNum {

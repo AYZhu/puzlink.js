@@ -1,14 +1,25 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "include": ["*.js", "scripts/**/*.ts", "src/**/*.ts"],
   "compilerOptions": {
-    "module": "node16",
-    "target": "esnext",
+    "exactOptionalPropertyTypes": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
     "strict": true,
-    "verbatimModuleSyntax": true,
+
+    "module": "nodenext",
+
     "declaration": true,
-    "sourceMap": true,
     "declarationMap": true,
+    "outDir": "dist",
+    "sourceMap": true,
+
     "checkJs": true,
-    "noUncheckedIndexedAccess": true
-  },
-  "include": ["*.js", "src/**/*.ts"]
+
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+
+    "lib": ["es2023"],
+    "target": "es2023"
+  }
 }

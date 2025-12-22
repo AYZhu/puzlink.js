@@ -8,7 +8,9 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "test": "vitest"
+    "lint": "eslint",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "puzzles"
@@ -26,11 +28,11 @@
     "simple-statistics": "^7.8.8"
   },
   "devDependencies": {
-    "@eslint/js": "^9.19.0",
-    "@types/node": "^22.12.0",
-    "eslint": "^9.19.0",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.22.0",
-    "vitest": "^3.0.4"
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^24.0.15",
+    "eslint": "^9.39.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.0",
+    "vitest": "^4.0.16"
   }
 }
