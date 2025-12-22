@@ -8,5 +8,6 @@ for (const key in knownLogProbs) {
   delete knownLogProbs[key];
 }
 
-// TODO: make this a real script
+// TODO: make this a real script, one that either regenerates
+// ./data/knownLogProbs.js entirely, or just adds the new ones
 new Puzlink(await Wordlist.download());

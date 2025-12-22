@@ -136,6 +136,9 @@ export class LogNum {
     // Strip zeroes first:
     values = values.filter((x) => x.data !== -Infinity);
     const max = Math.max(...values.map((x) => x.data));
+    if (max === Infinity) {
+      return new LogNum(Infinity);
+    }
     const expSum = values.reduce((acc, x) => acc + Math.exp(x.data - max), 0);
     return new LogNum(max + Math.log(expSum));
   }

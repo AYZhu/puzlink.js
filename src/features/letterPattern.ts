@@ -12,4 +12,3 @@
 // - alternates vowels and consonants
 // - repeated bigrams
 // - has only one vowel
-// - contains specific bigram...

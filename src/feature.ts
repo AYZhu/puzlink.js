@@ -71,7 +71,6 @@ export function booleanFeature({
     const preconditionLogProb = wordlist.logProb(precondition);
     logProb = logProb.div(preconditionLogProb);
   }
-  const feature = { name, logProb, property };
-  console.log(`"${name}": LogNum.fromExp(${logProb.toLog().toString()}),`);
-  return feature;
+  knownLogProbs[name] = logProb;
+  return { name, logProb, property };
 }

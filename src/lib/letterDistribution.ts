@@ -11,7 +11,11 @@ export const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 export class LetterDistribution {
   readonly distribution: Distribution<string>;
 
-  constructor(wordlist: Wordlist) {
+  constructor(distribution: Distribution<string>) {
+    this.distribution = distribution;
+  }
+
+  static from(wordlist: Wordlist): LetterDistribution {
     const frequencies = wordlist.reduce(
       new Map(Array.from(LETTERS).map((letter) => [letter, LogNum.from(0)])),
       (freqs, slug, zipf) => {
@@ -23,7 +27,7 @@ export class LetterDistribution {
         return freqs;
       },
     );
-    this.distribution = new Distribution(frequencies);
+    return new LetterDistribution(new Distribution(frequencies));
   }
 
   /** Log probability of a slug's distribution, via chi-squared. */

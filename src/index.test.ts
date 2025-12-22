@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { Puzlink } from "./index.js";
 import { Wordlist } from "./lib/wordlist.js";
 
+// TODO: we should have some sort of script for running integration tests
 describe.skip("integration tests", () => {
   let puzlink: Puzlink;
 

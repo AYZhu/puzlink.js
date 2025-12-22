@@ -69,13 +69,18 @@ export class Distribution<T extends PropertyKey> {
 
   /** Chi-squared test statistic against an observed distribution. */
   chi2(observed: LogCounter<T>): LogNum {
+    for (const [item] of observed.entries()) {
+      if (!this.frequencies.has(item)) {
+        return LogNum.from(Infinity);
+      }
+    }
     const n = observed.total;
-    return LogNum.sum(
-      Array.from(this.frequencies.entries()).map(([item, freq]) => {
-        const nfreq = n.mul(freq);
-        return nfreq.absSub(observed.get(item)).pow(2).div(nfreq);
-      }),
-    );
+    const partials = [];
+    for (const [item, freq] of this.frequencies) {
+      const nfreq = n.mul(freq);
+      partials.push(nfreq.absSub(observed.get(item)).pow(2).div(nfreq));
+    }
+    return LogNum.sum(partials);
   }
 
   /** Log probability of an observed distribution, via chi-squared. */
