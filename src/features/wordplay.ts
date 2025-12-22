@@ -227,7 +227,9 @@ function transaddWith(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
     name: `has transadd ${letter}`,
     property: (word) => {
-      const transadds = wordlist.anagrams(`${word}${letter}`, false);
+      const transadds = wordlist.anagrams(`${word}${letter}`, {
+        strict: false,
+      });
       return transadds.length === 0
         ? null
         : `${word} transadd ${letter} = ${transadds.join(", ")}`;
@@ -242,7 +244,9 @@ function transaddAny(wordlist: Wordlist): Feature {
     property: (word) => {
       const allTransadds = [];
       for (const letter of LETTERS) {
-        for (const transadd of wordlist.anagrams(`${word}${letter}`, false)) {
+        for (const transadd of wordlist.anagrams(`${word}${letter}`, {
+          strict: false,
+        })) {
           allTransadds.push(transadd);
         }
       }
@@ -262,7 +266,9 @@ function transdeleteWith(wordlist: Wordlist, letter: string): Feature {
       if (!word.includes(letter)) {
         return null;
       }
-      const transdeletes = wordlist.anagrams(word.replace(letter, ""), false);
+      const transdeletes = wordlist.anagrams(word.replace(letter, ""), {
+        strict: false,
+      });
       return transdeletes.length === 0
         ? null
         : `${word} transdelete ${letter} = ${transdeletes.join(", ")}`;
@@ -277,10 +283,9 @@ function transdeleteAny(wordlist: Wordlist): Feature {
     property: (word) => {
       const allTransdeletes = [];
       for (const letter of new Set(word)) {
-        for (const transdelete of wordlist.anagrams(
-          word.replace(letter, ""),
-          false,
-        )) {
+        for (const transdelete of wordlist.anagrams(word.replace(letter, ""), {
+          strict: false,
+        })) {
           allTransdeletes.push(transdelete);
         }
       }

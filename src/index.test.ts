@@ -42,13 +42,11 @@ describe("link", () => {
   });
 
   // https://puzzles.mit.edu/2007/puzzles/1_1_1/
-  test.skip("1 - 1 = 1", () => {
+  test("1 - 1 = 1", () => {
     expect(
-      puzlink
-        .link(
-          `STRIFE SEAMAN NIX ETCH POST QUEER-ART FOO TALKS REPAYS STU HUMF UNDERHID SIXTEENS BOWMEN`,
-        )
-        .slice(0, 10),
+      link(
+        `STRIFE SEAMAN NIX ETCH POST QUEER-ART FOO TALKS REPAYS STU HUMF UNDERHID SIXTEENS BOWMEN`,
+      ),
     ).toBe("has transdelete 1 (14 / 14)");
   });
 

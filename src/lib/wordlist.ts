@@ -77,21 +77,28 @@ export class Wordlist {
     );
   }
 
-  /** Returns the zipf of the given slug: bigger = more common. */
-  zipf(slug: string): number {
-    return this.cromulence.zipf(slug);
-  }
-
   /** Returns true if the given slug is in the wordlist. */
-  isWord(slug: string): boolean {
-    return slug in this.cromulence.wordlist;
+  isWord(
+    slug: string,
+    { threshold = 0 }: { threshold?: number } = {},
+  ): boolean {
+    const zipf = this.cromulence.wordlist[slug];
+    if (zipf === undefined) {
+      return false;
+    }
+    return zipf > threshold;
   }
 
   /** Filters for slugs in the wordlist, sorted from most common to least. */
-  filterWords(slugs: string[]): string[] {
+  filterWords(
+    slugs: string[],
+    { threshold = 0 }: { threshold?: number } = {},
+  ): string[] {
     return slugs
       .map((slug) => [slug, this.cromulence.wordlist[slug]] as const)
-      .filter((t): t is [string, number] => t[1] !== undefined)
+      .filter(
+        (t): t is [string, number] => t[1] !== undefined && t[1] > threshold,
+      )
       .sort((a, b) => b[1] - a[1])
       .map((t) => t[0]);
   }
@@ -101,23 +108,18 @@ export class Wordlist {
     return this.cromulence.cromulence(phrase) > 0;
   }
 
-  /** Returns a word that's the anagram of the given slug, else null. */
-  isAnagram(slug: string, strict = true): string | null {
-    const anagrams = this.letterCounters.get(LetterBitset.from(slug).data);
-    if (anagrams === undefined) {
-      return null;
-    }
-    if (!strict) {
-      return anagrams[0] ?? null;
-    }
-    return anagrams.find((word) => word !== slug) ?? null;
-  }
-
   /** Returns the anagrams of a given slug, sorted from most common to least. */
-  anagrams(slug: string, strict = true): string[] {
+  anagrams(
+    slug: string,
+    {
+      strict = true,
+      threshold = 0,
+    }: { strict?: boolean; threshold?: number } = {},
+  ): string[] {
     return (this.letterCounters.get(LetterBitset.from(slug).data) ?? [])
       .filter((word) => !strict || word !== slug)
       .map((word) => [word, this.cromulence.wordlist[word]!] as const)
+      .filter((t) => t[1] > threshold)
       .sort((a, b) => b[1] - a[1])
       .map((t) => t[0]);
   }
