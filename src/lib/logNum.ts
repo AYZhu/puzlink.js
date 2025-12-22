@@ -170,11 +170,11 @@ export class LogNum {
     const probs = [];
 
     if (successes > expected) {
-      for (let i = expected; i <= successes; i++) {
+      for (let i = successes; i <= trials; i++) {
         probs.push(LogNum.binomialProb(i, trials, frequency));
       }
     } else {
-      for (let i = 1; i <= successes; i++) {
+      for (let i = 0; i <= successes; i++) {
         probs.push(LogNum.binomialProb(i, trials, frequency));
       }
     }

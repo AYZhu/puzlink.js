@@ -10,17 +10,33 @@ export class Puzlink {
     this.linkers = allLinkers(wordlist);
   }
 
-  link(words: string[], ordered?: boolean): Required<Link>[] {
-    const slugs = words.map((w) => slugify(w));
+  parse(words: string | readonly string[]): string[] {
+    if (typeof words === "string") {
+      if (words.includes("\n")) {
+        words = words.split("\n");
+      } else if (words.includes(",")) {
+        words = words.split(",");
+      } else {
+        words = words.split(" ");
+      }
+    }
+    return words.map((w) => slugify(w)).filter((w) => w.length > 0);
+  }
+
+  link(words: string | readonly string[], ordered?: boolean): Required<Link>[] {
+    const slugs = this.parse(words);
     return this.linkers
       .flatMap((linker) => {
         const links = linker.eval(slugs, ordered);
         return links.map((link) => ({ name: linker.name, ...link }));
       })
-      .sort((a, b) => (b.logProb.gt(a.logProb) ? 1 : -1));
+      .sort((a, b) => (b.logProb.gt(a.logProb) ? -1 : 1));
   }
 
-  bestLink(words: string[], ordered?: boolean): Required<Link> | undefined {
+  bestLink(
+    words: string | readonly string[],
+    ordered?: boolean,
+  ): Required<Link> | undefined {
     return this.link(words, ordered)[0];
   }
 }

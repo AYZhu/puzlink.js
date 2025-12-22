@@ -78,4 +78,45 @@ describe("LogNum", () => {
       ]).toNum(),
     ).toBeCloseTo(1 / 36);
   });
+
+  test("binomial prob", () => {
+    expect(
+      LogNum.binomialProb(0, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(1 / 16);
+    expect(
+      LogNum.binomialProb(1, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(4 / 16);
+    expect(
+      LogNum.binomialProb(2, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(6 / 16);
+    expect(
+      LogNum.binomialProb(3, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(4 / 16);
+    expect(
+      LogNum.binomialProb(4, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(1 / 16);
+
+    // two shots at an unlikely event makes it roughly twice as likely:
+    expect(LogNum.binomialProb(1, 2, LogNum.fromExp(-4)).toNum()).toBeCloseTo(
+      LogNum.fromExp(-4).mul(LogNum.from(2)).toNum(),
+    );
+  });
+
+  test("binomial p value", () => {
+    expect(
+      LogNum.binomialPValue(0, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(1 / 16);
+    expect(
+      LogNum.binomialPValue(1, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(5 / 16);
+    expect(
+      LogNum.binomialPValue(2, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(11 / 16);
+    expect(
+      LogNum.binomialPValue(3, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(5 / 16);
+    expect(
+      LogNum.binomialPValue(4, 4, LogNum.fromFraction(1, 2)).toNum(),
+    ).toBeCloseTo(1 / 16);
+  });
 });

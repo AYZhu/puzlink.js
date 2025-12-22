@@ -33,6 +33,9 @@ export function featureLinker(feature: Feature): Linker {
         const result = feature.property(word);
         return result ? [result] : [];
       });
+      // Should we report the feature? This isn't entirely straightforward.
+      // Super unlikely single-hits (like "can change to q" for 1/7) might
+      // overwhelm less likely all-hits (like "has transadd 1" for 7/7).
       const logProb = LogNum.binomialPValue(
         description.length,
         words.length,
@@ -52,13 +55,10 @@ export function featureLinker(feature: Feature): Linker {
 /** Create a feature for a boolean property of a word. */
 export function booleanFeature({
   name,
-  precondition,
   property,
   wordlist,
 }: {
   name: string;
-  /** Sometimes the logprob only makes sense if a precondition holds: */
-  precondition?: (word: string) => boolean;
   property: (word: string) => string | null;
   wordlist: Wordlist;
 }): Feature {
@@ -67,10 +67,7 @@ export function booleanFeature({
     return { name, logProb, property };
   }
   logProb = wordlist.logProb((word) => property(word) !== null);
-  if (precondition) {
-    const preconditionLogProb = wordlist.logProb(precondition);
-    logProb = logProb.div(preconditionLogProb);
-  }
-  knownLogProbs[name] = logProb;
+  // TODO: extract this to the build script
+  console.log(`"${name}": LogNum.fromExp(${logProb.toLog().toString()}),`);
   return { name, logProb, property };
 }

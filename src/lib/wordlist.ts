@@ -10,6 +10,7 @@ import { LogNum } from "./logNum.js";
  */
 export class Wordlist {
   private cromulence: Cromulence;
+  /** A map from letter bitsets to words with that bitset. */
   private letterCounters = new Map<bigint, string[]>();
 
   constructor(wordlist: Record<string, number>) {
@@ -51,20 +52,29 @@ export class Wordlist {
 
   /** Apply a reducer to each word in the wordlist. */
   reduce<T>(initial: T, reducer: (acc: T, slug: string, zipf: number) => T): T {
-    return Object.entries(this.cromulence.wordlist).reduce(
-      (acc, [slug, zipf]) => reducer(acc, slug, zipf),
-      initial,
-    );
+    let result = initial;
+    for (const slug in this.cromulence.wordlist) {
+      const zipf = this.cromulence.wordlist[slug]!;
+      result = reducer(result, slug, zipf);
+    }
+    return result;
   }
 
-  /** Get the log prob that a wordlist item satisfies the given property. */
+  /**
+   * Get the log prob that a wordlist item, drawn uniformly at random,
+   * satisfies the given property. This is NOT weighted by zipf!
+   */
   logProb(property: (slug: string) => boolean): LogNum {
-    return this.reduce(LogNum.from(0), (acc, slug, zipf) => {
+    const total = this.reduce(0, (acc, slug) => {
       if (!property(slug)) {
         return acc;
       }
-      return acc.add(LogNum.fromZipf(zipf));
+      return acc + 1;
     });
+    return LogNum.fromFraction(
+      total,
+      Object.keys(this.cromulence.wordlist).length,
+    );
   }
 
   /** Returns the zipf of the given slug: bigger = more common. */

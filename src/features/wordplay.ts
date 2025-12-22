@@ -124,7 +124,6 @@ function curtail(wordlist: Wordlist): Feature {
 function deleteWith(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
     name: `can delete ${letter}`,
-    precondition: (word) => word.includes(letter),
     property: (word) => {
       const allDeleted = [];
       for (let i = 0; i < word.length; i++) {
@@ -259,7 +258,6 @@ function transaddAny(wordlist: Wordlist): Feature {
 function transdeleteWith(wordlist: Wordlist, letter: string): Feature {
   return booleanFeature({
     name: `has transdelete ${letter}`,
-    precondition: (word) => word.includes(letter),
     property: (word) => {
       if (!word.includes(letter)) {
         return null;
