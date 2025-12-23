@@ -1,4 +1,4 @@
-import { knownLogProbs } from "../data/knownLogProbs.js";
+import { KnownLogProbs } from "../data/knownLogProbs.js";
 import { LogNum } from "../lib/logNum.js";
 import { Wordlist } from "../lib/wordlist.js";
 import type { Linker } from "../linkers/index.js";
@@ -6,20 +6,20 @@ import { otherFeatures } from "./other.js";
 import { wordplayFeatures } from "./wordplay.js";
 
 /**
- * A Feature is a property of a word that is quantified via logProb.
+ * A Feature is a property that a slug can have.
  *
  * Features should be as specific as possible, like "can prepend T to get a
  * word", rather than "can prepend a letter to get a word". Instead, use
  * linkers to get more general features.
  */
 export type Feature = {
+  /** The name of the feature; will be used for the linker name. */
   name: string;
-  logProb: LogNum;
   /**
-   * Should be a sentence with the `word` as the subject, e.g. `can prepend A
-   * to ${word} to get a word`.
+   * If the `slug` has the feature, returns a sentence with the `slug` as the
+   * subject: e.g. `can prepend A to ${slug} to get a word`.
    */
-  property: (word: string) => string | null;
+  property: (slug: string, wordlist: Wordlist) => string | null;
 };
 
 /**
@@ -27,26 +27,33 @@ export type Feature = {
  * probability that at least k or at most k out of n words share the feature,
  * whichever is less.
  */
-export function featureLinker(feature: Feature): Linker {
+function featureLinker(
+  wordlist: Wordlist,
+  { name, property }: Feature,
+): Linker {
+  const featureLogProb = KnownLogProbs.get(name, () => {
+    return wordlist.logProb((word) => property(word, wordlist) !== null);
+  });
+
   return {
-    name: feature.name,
+    name,
     eval: (words) => {
       const description = words.flatMap((word) => {
-        const result = feature.property(word);
+        const result = property(word, wordlist);
         return result ? [result] : [];
       });
       // Should we report the feature? This isn't entirely straightforward.
       // Super unlikely single-hits (like "can change to q" for 1/7) might
       // overwhelm less likely all-hits (like "has transadd 1" for 7/7).
-      // TODO: adjust reporting heuristics
+      // TODO: adjust reporting heuristics; maybe via 'loose' prop on Feature?
       const logProb = LogNum.binomialPValue(
         description.length,
         words.length,
-        feature.logProb,
+        featureLogProb,
       );
       return [
         {
-          name: `${feature.name} (${description.length.toString()} / ${words.length.toString()})`,
+          name: `${name} (${description.length.toString()} / ${words.length.toString()})`,
           description,
           logProb,
         },
@@ -55,28 +62,29 @@ export function featureLinker(feature: Feature): Linker {
   };
 }
 
-/** Create a feature for a boolean property of a word. */
-export function booleanFeature({
-  name,
-  property,
-  wordlist,
-}: {
-  name: string;
-  property: (word: string) => string | null;
-  wordlist: Wordlist;
-}): Feature {
-  let logProb = knownLogProbs[name];
-  if (logProb !== undefined) {
-    return { name, logProb, property };
-  }
-  logProb = wordlist.logProb((word) => property(word) !== null);
-  knownLogProbs[name] = logProb;
-  return { name, logProb, property };
-}
-
 /** Feature-based linkers. */
 export function featureLinkers(wordlist: Wordlist): Linker[] {
-  return [...wordplayFeatures(wordlist), ...otherFeatures(wordlist)].map(
-    (feature) => featureLinker(feature),
+  return [...wordplayFeatures(), ...otherFeatures()].map((feature) =>
+    featureLinker(wordlist, feature),
   );
+}
+
+/**
+ * For testing purposes. Takes a list of features, and returns
+ * a function that takes a slug and returns all features it satisfies.
+ */
+export function makeFeatureGetter(
+  features: Feature[],
+  wordlist: Wordlist,
+): (slug: string) => Record<string, string> {
+  return (slug) => {
+    const properties: Record<string, string> = {};
+    for (const feature of features) {
+      const property = feature.property(slug, wordlist);
+      if (property) {
+        properties[feature.name] = property;
+      }
+    }
+    return properties;
+  };
 }

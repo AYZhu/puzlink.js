@@ -132,6 +132,10 @@ export class LogNum {
     return this.data < other.data;
   }
 
+  closeTo(other: LogNum, epsilon = 0.005): boolean {
+    return Math.abs(this.data - other.data) < epsilon;
+  }
+
   static sum(values: LogNum[]): LogNum {
     // Strip zeroes first:
     values = values.filter((x) => x.data !== -Infinity);

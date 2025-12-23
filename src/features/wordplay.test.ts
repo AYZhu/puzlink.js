@@ -1,20 +1,13 @@
 import { describe, expect, test } from "vitest";
 import { Wordlist } from "../lib/wordlist.js";
 import { wordplayFeatures } from "./wordplay.js";
+import { makeFeatureGetter } from "./index.js";
 
 describe("wordplayFeatures", () => {
-  const features = wordplayFeatures(
+  const featuresOf = makeFeatureGetter(
+    wordplayFeatures(),
     Wordlist.from(["at", "ats", "bar", "bat", "bath", "cat", "ta"]),
   );
-
-  const featuresOf = (word: string) => {
-    return Object.fromEntries(
-      features.flatMap((feature) => {
-        const property = feature.property(word);
-        return property ? [[feature.name, property]] : [];
-      }),
-    );
-  };
 
   test("wordplay features", () => {
     expect(featuresOf("at")).toMatchInlineSnapshot(`

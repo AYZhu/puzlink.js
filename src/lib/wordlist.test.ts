@@ -28,6 +28,6 @@ describe("Wordlist", () => {
     expect(words.anagrams("god")).toEqual(["dog"]);
     expect(words.anagrams("bat")).toEqual([]);
     expect(words.anagrams("ant")).toEqual([]);
-    expect(words.anagrams("ant", { strict: false })).toEqual(["ant"]);
+    expect(words.anagrams("ant", { loose: true })).toEqual(["ant"]);
   });
 });

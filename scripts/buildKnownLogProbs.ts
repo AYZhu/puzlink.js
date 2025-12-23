@@ -1,7 +1,7 @@
 import * as fs from "node:fs/promises";
-import { Wordlist } from "../src/lib/wordlist.js";
+import { KnownLogProbs } from "../src/data/knownLogProbs.js";
 import { Puzlink } from "../src/index.js";
-import { knownLogProbs } from "../src/data/knownLogProbs.js";
+import { Wordlist } from "../src/lib/wordlist.js";
 
 const start = Date.now();
 
@@ -14,38 +14,70 @@ const regenAll = process.argv[2] === "all";
 
 if (regenAll) {
   console.log("building all logProbs");
+  KnownLogProbs.useCache = false;
 } else {
   console.log('building new logProbs (pass "all" to regenerate all)');
 }
 
-if (regenAll) {
-  // Clear cache, so we recompute.
-  for (const key in knownLogProbs) {
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete knownLogProbs[key];
+const durations: [number, string][] = [];
+
+const missingFeatures = new Set(Object.keys(KnownLogProbs.knownLogProbs));
+
+KnownLogProbs.wrapCompute = (name, fn, existing) => {
+  process.stdout.write(`  ${name}...`);
+  const start = Date.now();
+  const result = fn();
+  const duration = Date.now() - start;
+  const tag =
+    existing === undefined
+      ? "(new)"
+      : !result.closeTo(existing)
+        ? "(diff)"
+        : "(same)";
+  process.stdout.write(` in ${duration.toString()}ms ${tag}\n`);
+  durations.push([duration, name]);
+  missingFeatures.delete(name);
+  return result;
+};
+
+const newFile = [];
+
+const oldFile = await fs.readFile(knownLogProbsPath, "utf-8");
+for (const line of oldFile.split("\n")) {
+  if (line.startsWith("export const KnownLogProbs")) {
+    break;
   }
+  newFile.push(line);
 }
 
+// This actually computes the new log probs:
 new Puzlink(await Wordlist.download());
 
-const file = `
-import { LogNum } from "../lib/logNum.js";
+for (const line of KnownLogProbs.dump()) {
+  newFile.push(line);
+}
 
-/** Computing feature LogProbs can be expensive; here are cached values. */
-export const knownLogProbs: Record<string, LogNum> = {
-${Object.entries(knownLogProbs)
-  .map(
-    ([key, value]) =>
-      `  "${key}": LogNum.fromExp(${value.toLog().toString()}),`,
-  )
-  .join("\n")}
-};
-`.trimStart();
+// Add a trailing newline:
+newFile.push("");
 
-await fs.writeFile(knownLogProbsPath, file, "utf-8");
+await fs.writeFile(knownLogProbsPath, newFile.join("\n"), "utf-8");
 
-console.log(
-  `built ${Object.keys(knownLogProbs).length.toString()} logProbs in ${(
-    Date.now() - start
-  ).toString()}ms`,
-);
+console.log(`built logProbs in ${(Date.now() - start).toString()}ms`);
+
+if (durations.length > 0) {
+  console.log("slowest computations:");
+  for (const [duration, name] of durations
+    .sort((a, b) => b[0] - a[0])
+    .slice(0, 10)) {
+    console.log(`  ${name}: ${duration.toString()}ms`);
+  }
+} else {
+  console.log("no changes");
+}
+
+if (regenAll && missingFeatures.size > 0) {
+  console.warn("missing features:");
+  for (const name of missingFeatures) {
+    console.warn(`  ${name}`);
+  }
+}

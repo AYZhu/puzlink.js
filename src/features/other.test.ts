@@ -1,20 +1,13 @@
 import { describe, expect, test } from "vitest";
 import { Wordlist } from "../lib/wordlist.js";
 import { otherFeatures } from "./other.js";
+import { makeFeatureGetter } from "./index.js";
 
 describe("otherFeatures", () => {
-  const features = otherFeatures(
+  const featuresOf = makeFeatureGetter(
+    otherFeatures(),
     Wordlist.from(["level", "lever", "abca", "abda", "noon", "stone"]),
   );
-
-  const featuresOf = (word: string) => {
-    return Object.fromEntries(
-      features.flatMap((feature) => {
-        const property = feature.property(word);
-        return property ? [[feature.name, property]] : [];
-      }),
-    );
-  };
 
   test("palindromes features", () => {
     expect(featuresOf("level")).toMatchInlineSnapshot(`

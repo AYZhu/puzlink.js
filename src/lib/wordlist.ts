@@ -89,6 +89,14 @@ export class Wordlist {
     return zipf > threshold;
   }
 
+  /** Returns true if any of the given slugs are in the wordlist. */
+  hasWord(
+    slugs: string[],
+    { threshold = 0 }: { threshold?: number } = {},
+  ): boolean {
+    return slugs.some((slug) => this.isWord(slug, { threshold }));
+  }
+
   /** Filters for slugs in the wordlist, sorted from most common to least. */
   filterWords(
     slugs: string[],
@@ -112,12 +120,12 @@ export class Wordlist {
   anagrams(
     slug: string,
     {
-      strict = true,
+      loose = false,
       threshold = 0,
-    }: { strict?: boolean; threshold?: number } = {},
+    }: { loose?: boolean; threshold?: number } = {},
   ): string[] {
     return (this.letterCounters.get(LetterBitset.from(slug).data) ?? [])
-      .filter((word) => !strict || word !== slug)
+      .filter((word) => !loose || word !== slug)
       .map((word) => [word, this.cromulence.wordlist[word]!] as const)
       .filter((t) => t[1] > threshold)
       .sort((a, b) => b[1] - a[1])
