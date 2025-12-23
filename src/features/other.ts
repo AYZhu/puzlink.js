@@ -1,7 +1,7 @@
-import { booleanFeature, type Feature } from "../feature.js";
 import { LETTERS } from "../lib/letterDistribution.js";
 import { interval, mapProduct } from "../lib/util.js";
 import type { Wordlist } from "../lib/wordlist.js";
+import { booleanFeature, type Feature } from "./index.js";
 
 // TODO:
 // - scrabble score equal to [1..30]
@@ -59,7 +59,7 @@ function almostPalindrome(wordlist: Wordlist): Feature {
 /** Features that don't fit elsewhere. */
 export function otherFeatures(wordlist: Wordlist): Feature[] {
   return [
-    ...mapProduct(hasAtIndex, [wordlist], LETTERS, interval(-5, 10)),
+    ...mapProduct(hasAtIndex, [wordlist], LETTERS, interval(-5, 9)),
     palindrome(wordlist),
     almostPalindrome(wordlist),
   ];

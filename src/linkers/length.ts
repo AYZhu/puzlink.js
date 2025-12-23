@@ -1,5 +1,5 @@
 import type { LengthDistribution } from "../lib/lengthDistribution.js";
-import type { Linker } from "../linker.js";
+import type { Linker } from "./index.js";
 
 /** Length-based linker. */
 export function lengthLinker(distribution: LengthDistribution): Linker {

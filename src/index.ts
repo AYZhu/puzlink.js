@@ -1,6 +1,6 @@
 import { slugify } from "cromulence";
 import { Wordlist } from "./lib/wordlist.js";
-import type { Link, Linker } from "./linker.js";
+import type { Link, Linker } from "./linkers/index.js";
 import { allLinkers } from "./linkers/index.js";
 
 export class Puzlink {
