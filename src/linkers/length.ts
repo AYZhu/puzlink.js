@@ -1,11 +1,6 @@
 import type { LengthDistribution } from "../lib/lengthDistribution.js";
 import type { Linker } from "../linker.js";
 
-// - all the same, all odd/even, all equal mod 3, consecutive values, all different
-//   - arithmetic sequence lengths
-// - pair by lengths
-//   - https://puzzles.mit.edu/2012/puzzles/a_circus_line/solution/
-
 /** Length-based linker. */
 export function lengthLinker(distribution: LengthDistribution): Linker {
   return {
@@ -63,6 +58,8 @@ export function lengthLinker(distribution: LengthDistribution): Linker {
           });
         }
       }
+
+      // TODO: can pair by lengths
 
       return results;
     },

@@ -1,5 +1,5 @@
-// - common letters between words (dist.nmatch_pvalue)
-// - differs from english letter distribution (dist.letters_outliers)
-//   - preponderance of NEWS
-//   - preponderance of IVXLDCM
-//   - only O and I as vowels
+// - common letters between words (use `probCommonOrdered`)
+//   - unclear if this is needed given the letter count features, but we'll see
+// - differs from english letter distribution (use `outliers`)
+//   - test: preponderance of NEWS
+//   - test: preponderance of IVXLDCM

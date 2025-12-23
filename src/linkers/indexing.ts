@@ -1,5 +1,7 @@
-// - primary acrostic links: identical, one of two, spells a word, other things...?
-// - secondary acrostic links: anagram of common word, contains alphabetic run, is palindrome
-//   - first letters are consecutive letters is sus
-//   - first letters pair up is sus
-// - maybe there's a better way to do this
+// - letters at index [-10..10] are:
+//   - (ordered) spell a word
+//   - are an anagram of a word
+//   - one of two choices
+//   - (ordered) are consecutive
+//   - can pair up
+// - (ordered) letters on the diagonal are (as above)

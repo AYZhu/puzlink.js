@@ -210,6 +210,11 @@ function reverse(wordlist: Wordlist): Feature {
   });
 }
 
+// TODO: shift wordplay, e.g. move first letter to last spot, move last letter to first spot
+// TODO: exchange wordplay, e.g. swap first and last letters, swap two adjacent letters
+// TODO(maybe): words formed from taking odd or even letters?
+// TODO(maybe): words that are caesar shifts of another word?
+
 function anagram(wordlist: Wordlist): Feature {
   return booleanFeature({
     name: "is anagram",
@@ -305,7 +310,10 @@ function withEveryLetter(
   return Array.from(LETTERS).map((letter) => feature(wordlist, letter));
 }
 
-/** Features for qhex-style wordplay. */
+/**
+ * Features for wordplay: words that form another word when applying some sort
+ * of transformation.
+ */
 export function wordplayFeatures(wordlist: Wordlist): Feature[] {
   return [
     ...withEveryLetter(prependWith, wordlist),
