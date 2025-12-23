@@ -17,8 +17,8 @@ export type Feature = {
   /** The name of the feature; will be used for the linker name. */
   name: string;
   /**
-   * If the `slug` has the feature, returns a sentence with the `slug` as the
-   * subject: e.g. `can prepend A to ${slug} to get a word`.
+   * If the `slug` has the feature, returns a description with `slug` as the
+   * subject. This is an elaboration on the feature name.
    */
   property: (slug: string, wordlist: Wordlist) => string | null;
 };
