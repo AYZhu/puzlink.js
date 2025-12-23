@@ -5,7 +5,7 @@ import type { Feature } from "./index.js";
 function prependWith(letter: string): Feature {
   return {
     name: `can prepend ${letter}`,
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const prepended = `${letter}${slug}`;
       return wordlist.isWord(prepended)
         ? `${letter} + ${slug} = ${prepended}`
@@ -17,7 +17,7 @@ function prependWith(letter: string): Feature {
 function prependAny(): Feature {
   return {
     name: "can prepend 1",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const prepended = wordlist.filterWords(
         Array.from(LETTERS).map((letter) => `${letter}${slug}`),
       );
@@ -31,7 +31,7 @@ function prependAny(): Feature {
 function appendWith(letter: string): Feature {
   return {
     name: `can append ${letter}`,
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const appended = `${slug}${letter}`;
       return wordlist.isWord(appended)
         ? `${slug} + ${letter} = ${appended}`
@@ -43,7 +43,7 @@ function appendWith(letter: string): Feature {
 function appendAny(): Feature {
   return {
     name: "can append 1",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const appended = wordlist.filterWords(
         Array.from(LETTERS).map((letter) => `${slug}${letter}`),
       );
@@ -57,7 +57,7 @@ function appendAny(): Feature {
 function insertWith(letter: string): Feature {
   return {
     name: `can insert ${letter}`,
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const allInserted = [];
       for (let i = 0; i <= slug.length; i++) {
         allInserted.push(`${slug.slice(0, i)}${letter}${slug.slice(i)}`);
@@ -73,7 +73,7 @@ function insertWith(letter: string): Feature {
 function insertAny(): Feature {
   return {
     name: "can insert 1",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const allInserted = [];
       for (let i = 0; i <= slug.length; i++) {
         for (const letter of LETTERS) {
@@ -91,7 +91,7 @@ function insertAny(): Feature {
 function behead(): Feature {
   return {
     name: "can behead 1",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const beheaded = slug.slice(1);
       return wordlist.isWord(beheaded)
         ? `${slug} behead 1 = ${beheaded}`
@@ -103,7 +103,7 @@ function behead(): Feature {
 function curtail(): Feature {
   return {
     name: "can curtail 1",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const curtailed = slug.slice(0, slug.length - 1);
       return wordlist.isWord(curtailed)
         ? `${slug} curtail 1 = ${curtailed}`
@@ -115,7 +115,7 @@ function curtail(): Feature {
 function deleteWith(letter: string): Feature {
   return {
     name: `can delete ${letter}`,
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const allDeleted = [];
       for (let i = 0; i < slug.length; i++) {
         if (slug[i] === letter) {
@@ -133,7 +133,7 @@ function deleteWith(letter: string): Feature {
 function deleteAny(): Feature {
   return {
     name: "can delete 1",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const allDeleted = [];
       for (let i = 0; i < slug.length; i++) {
         allDeleted.push(`${slug.slice(0, i)}${slug.slice(i + 1)}`);
@@ -149,7 +149,7 @@ function deleteAny(): Feature {
 function changeTo(letter: string): Feature {
   return {
     name: `can change to ${letter}`,
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const allChanged = [];
       for (let i = 0; i < slug.length; i++) {
         if (slug[i] !== letter) {
@@ -167,7 +167,7 @@ function changeTo(letter: string): Feature {
 function changeAny(): Feature {
   return {
     name: "can change 1",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const allChanged = [];
       for (let i = 0; i < slug.length; i++) {
         for (const letter of LETTERS) {
@@ -187,7 +187,7 @@ function changeAny(): Feature {
 function reverse(): Feature {
   return {
     name: "can reverse",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const reversed = slug.split("").reverse().join("");
       return wordlist.isWord(reversed)
         ? `${slug} reversed = ${reversed}`
@@ -204,7 +204,7 @@ function reverse(): Feature {
 function anagram(): Feature {
   return {
     name: "is anagram",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const anagrams = wordlist.anagrams(slug);
       return anagrams.length === 0
         ? null
@@ -216,7 +216,7 @@ function anagram(): Feature {
 function transaddWith(letter: string): Feature {
   return {
     name: `has transadd ${letter}`,
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const transadds = wordlist.anagrams(`${slug}${letter}`, {
         loose: true,
       });
@@ -230,7 +230,7 @@ function transaddWith(letter: string): Feature {
 function transaddAny(): Feature {
   return {
     name: "has transadd 1",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const allTransadds = [];
       for (const letter of LETTERS) {
         for (const transadd of wordlist.anagrams(`${slug}${letter}`, {
@@ -250,7 +250,7 @@ function transaddAny(): Feature {
 function transdeleteWith(letter: string): Feature {
   return {
     name: `has transdelete ${letter}`,
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       if (!slug.includes(letter)) {
         return null;
       }
@@ -267,7 +267,7 @@ function transdeleteWith(letter: string): Feature {
 function transdeleteAny(): Feature {
   return {
     name: "has transdelete 1",
-    property: (slug, wordlist) => {
+    property: (slug, { wordlist }) => {
       const allTransdeletes = [];
       for (const letter of new Set(slug)) {
         for (const transdelete of wordlist.anagrams(slug.replace(letter, ""), {

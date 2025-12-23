@@ -7,6 +7,11 @@ import { KnownLogProbs } from "./logProbCache.js";
 import { otherFeatures } from "./other.js";
 import { wordplayFeatures } from "./wordplay.js";
 
+type Props = {
+  letterIndices: Map<string, number[]>;
+  wordlist: Wordlist;
+};
+
 /**
  * A Feature is a property that a slug can have.
  *
@@ -21,8 +26,20 @@ export type Feature = {
    * If the `slug` has the feature, returns a description with `slug` as the
    * subject. This is an elaboration on the feature name.
    */
-  property: (slug: string, wordlist: Wordlist) => string | null;
+  property: (slug: string, props: Props) => string | null;
 };
+
+function getProps(wordlist: Wordlist, slug: string): Props {
+  const letterIndices = new Map<string, number[]>();
+  for (let i = 0; i < slug.length; i++) {
+    const letter = slug[i]!;
+    if (!letterIndices.has(letter)) {
+      letterIndices.set(letter, []);
+    }
+    letterIndices.get(letter)!.push(i);
+  }
+  return { letterIndices, wordlist };
+}
 
 /**
  * Create a binomial linker for a given feature. A binomial link is the
@@ -33,11 +50,15 @@ function featureLinker(
   wordlist: Wordlist,
   { name, property }: Feature,
 ): Linker | null {
-  const featureLogProb = KnownLogProbs.get(name, () => {
-    return wordlist.logProb((word) => property(word, wordlist) !== null);
+  let featureLogProb = KnownLogProbs.get(name, () => {
+    return wordlist.logProb(
+      (word) => property(word, getProps(wordlist, word)) !== null,
+    );
   });
   if (featureLogProb.toLog() === -Infinity) {
-    // We can't meaningfully make linkers out of zero-probability things.
+    // We can't meaningfully make linkers out of zero-probability things,
+    // so just set it to something very small.
+    featureLogProb = LogNum.fromExp(-10);
     return null;
   }
 
@@ -45,7 +66,7 @@ function featureLinker(
     name,
     eval: (words) => {
       const description = words.flatMap((word) => {
-        const result = property(word, wordlist);
+        const result = property(word, getProps(wordlist, word));
         return result ? [result] : [];
       });
       // Should we report the feature? This isn't entirely straightforward.
@@ -92,7 +113,7 @@ export function makeFeatureGetter(
   return (slug) => {
     const properties: Record<string, string> = {};
     for (const feature of features) {
-      const property = feature.property(slug, wordlist);
+      const property = feature.property(slug, getProps(wordlist, slug));
       if (property) {
         properties[feature.name] = property;
       }
