@@ -1,3 +1,7 @@
+import { categories } from "../data/categories.js";
+import { mapProduct } from "../lib/util.js";
+import type { Feature } from "./index.js";
+
 // features for containing special substrings (or subsequences)
 //
 // - "long" categories: greek letters, days of week, months, numbers, body parts, nato/radio operator alphabet
@@ -8,3 +12,26 @@
 //   - word contains [1..5] of these
 //   - word can be completely broken down into these
 // - honestly just looking for long substrings is good, but we need a good heuristic for these, because we e.g. don't want to report that UNDERSCORE is a substring of UNDERSCORES, but we do want to report STRANGE is a substring of FOREST RANGER
+
+function containsOne(category: { name: string; items: string[] }): Feature {
+  const regex = new RegExp(category.items.join("|"), "g");
+  return {
+    name: `has ${category.name} substring`,
+    property: (slug) => {
+      const match = regex.exec(slug);
+      if (!match) {
+        return null;
+      }
+      return `${slug} contains ${match[0]}`;
+    },
+  };
+}
+
+export function substringFeatures(): Feature[] {
+  return [
+    ...mapProduct(
+      containsOne,
+      categories.map(([name, items]) => ({ name, items })),
+    ),
+  ];
+}

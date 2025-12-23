@@ -5,6 +5,7 @@ import { letterCountFeatures } from "./letterCount.js";
 import { letterSequenceFeatures } from "./letterSequence.js";
 import { KnownLogProbs } from "./logProbCache.js";
 import { otherFeatures } from "./other.js";
+import { substringFeatures } from "./substring.js";
 import { wordplayFeatures } from "./wordplay.js";
 
 type Props = {
@@ -95,6 +96,7 @@ export function featureLinkers(wordlist: Wordlist): Linker[] {
     ...letterCountFeatures(),
     ...letterSequenceFeatures(),
     ...otherFeatures(),
+    ...substringFeatures(),
     ...wordplayFeatures(),
   ].flatMap((feature) => {
     const linker = featureLinker(wordlist, feature);
