@@ -1,6 +1,7 @@
 import { LogNum } from "../lib/logNum.js";
 import { Wordlist } from "../lib/wordlist.js";
 import type { Linker } from "../linkers/index.js";
+import { letterCountFeatures } from "./letterCount.js";
 import { letterSequenceFeatures } from "./letterSequence.js";
 import { KnownLogProbs } from "./logProbCache.js";
 import { otherFeatures } from "./other.js";
@@ -70,9 +71,10 @@ function featureLinker(
 /** Feature-based linkers. */
 export function featureLinkers(wordlist: Wordlist): Linker[] {
   return [
-    ...wordplayFeatures(),
-    ...otherFeatures(),
+    ...letterCountFeatures(),
     ...letterSequenceFeatures(),
+    ...otherFeatures(),
+    ...wordplayFeatures(),
   ].flatMap((feature) => {
     const linker = featureLinker(wordlist, feature);
     return linker ? [linker] : [];

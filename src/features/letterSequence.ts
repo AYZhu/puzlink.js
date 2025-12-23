@@ -71,6 +71,28 @@ function bigramOfTimes(
   };
 }
 
+const bigram = {
+  alpha: {
+    type: "alphabetical",
+    check: (a, b) => a < b,
+  },
+  revAlpha: {
+    type: "reverse alphabetical",
+    check: (a, b) => a > b,
+  },
+  seq: {
+    type: "sequential",
+    check: (a, b) => a.charCodeAt(0) - b.charCodeAt(0) === -1,
+  },
+  revSeq: {
+    type: "reverse sequential",
+    check: (a, b) => a.charCodeAt(0) - b.charCodeAt(0) === 1,
+  },
+} as const satisfies Record<
+  string,
+  { type: string; check: (a: string, b: string) => boolean }
+>;
+
 function consecutiveOfTimes(
   kind: { name: string; letters: string },
   times: number,
@@ -106,6 +128,7 @@ function consecutiveOfTimes(
   };
 }
 
+// TODO: does this belong somewhere else?
 function bookendsOf(length: number): Feature {
   return {
     name: `starts and ends with the same ${length.toString()} letters`,
@@ -125,7 +148,7 @@ function bookendsOf(length: number): Feature {
 }
 
 /**
- * Features for letter sequence: things we can remark based on the relative
+ * Features for letter sequences: things we can remark based on the relative
  * order of the letters/bigrams/trigrams within the slug.
  */
 export function letterSequenceFeatures(): Feature[] {
@@ -135,45 +158,18 @@ export function letterSequenceFeatures(): Feature[] {
     ...mapProduct(equalAnyDistanceTimes, [0, 1, 2, 3], [1, 2, 3]),
     ...mapProduct(
       bigramOfTimes,
-      [
-        { type: "alphabetical", check: (a, b) => a < b },
-        { type: "reverse alphabetical", check: (a, b) => a > b },
-        {
-          type: "sequential",
-          check: (a, b) => a.charCodeAt(0) - b.charCodeAt(0) === -1,
-        },
-        {
-          type: "reverse sequential",
-          check: (a, b) => a.charCodeAt(0) - b.charCodeAt(0) === 1,
-        },
-      ],
-      interval(0, 10),
-      [true],
+      [bigram.alpha, bigram.revAlpha],
+      interval(1, 10),
+      [true, false],
     ),
+    ...mapProduct(bigramOfTimes, [bigram.seq, bigram.revSeq], interval(1, 5), [
+      true,
+      false,
+    ]),
     ...mapProduct(
       bigramOfTimes,
-      [
-        { type: "alphabetical", check: (a, b) => a < b },
-        { type: "reverse alphabetical", check: (a, b) => a > b },
-        {
-          type: "sequential",
-          check: (a, b) => a.charCodeAt(0) - b.charCodeAt(0) === -1,
-        },
-        {
-          type: "reverse sequential",
-          check: (a, b) => a.charCodeAt(0) - b.charCodeAt(0) === 1,
-        },
-      ],
-      interval(1, 10),
-      [false],
-    ),
-    ...mapProduct(
-      consecutiveOfTimes,
-      [
-        { name: "vowels", letters: VOWELS },
-        { name: "consonants", letters: CONSONANTS },
-      ],
-      interval(2, 5),
+      [bigram.alpha, bigram.revAlpha, bigram.seq, bigram.revSeq],
+      [0],
       [true],
     ),
     ...mapProduct(
@@ -183,7 +179,7 @@ export function letterSequenceFeatures(): Feature[] {
         { name: "consonants", letters: CONSONANTS },
       ],
       interval(2, 5),
-      [false],
+      [true, false],
     ),
     ...mapProduct(bookendsOf, [1, 2, 3]),
   ];
