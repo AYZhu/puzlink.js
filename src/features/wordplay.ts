@@ -1,6 +1,7 @@
 import type { Feature } from "../feature.js";
 import { booleanFeature } from "../feature.js";
 import { LETTERS } from "../lib/letterDistribution.js";
+import { mapProduct } from "../lib/util.js";
 import type { Wordlist } from "../lib/wordlist.js";
 
 function prependWith(wordlist: Wordlist, letter: string): Feature {
@@ -303,36 +304,29 @@ function transdeleteAny(wordlist: Wordlist): Feature {
   });
 }
 
-function withEveryLetter(
-  feature: (wordlist: Wordlist, letter: string) => Feature,
-  wordlist: Wordlist,
-): Feature[] {
-  return Array.from(LETTERS).map((letter) => feature(wordlist, letter));
-}
-
 /**
  * Features for wordplay: words that form another word when applying some sort
  * of transformation.
  */
 export function wordplayFeatures(wordlist: Wordlist): Feature[] {
   return [
-    ...withEveryLetter(prependWith, wordlist),
+    ...mapProduct(prependWith, [wordlist], LETTERS),
     prependAny(wordlist),
-    ...withEveryLetter(appendWith, wordlist),
+    ...mapProduct(appendWith, [wordlist], LETTERS),
     appendAny(wordlist),
-    ...withEveryLetter(insertWith, wordlist),
+    ...mapProduct(insertWith, [wordlist], LETTERS),
     insertAny(wordlist),
     behead(wordlist),
     curtail(wordlist),
-    ...withEveryLetter(deleteWith, wordlist),
+    ...mapProduct(deleteWith, [wordlist], LETTERS),
     deleteAny(wordlist),
-    ...withEveryLetter(changeTo, wordlist),
+    ...mapProduct(changeTo, [wordlist], LETTERS),
     changeAny(wordlist),
     reverse(wordlist),
     anagram(wordlist),
-    ...withEveryLetter(transaddWith, wordlist),
+    ...mapProduct(transaddWith, [wordlist], LETTERS),
     transaddAny(wordlist),
-    ...withEveryLetter(transdeleteWith, wordlist),
+    ...mapProduct(transdeleteWith, [wordlist], LETTERS),
     transdeleteAny(wordlist),
   ];
 }

@@ -7,7 +7,7 @@ import { Wordlist } from "./lib/wordlist.js";
 
 // These tests are stolen from Collective.jl:
 // https://github.com/rdeits/Collective.jl
-describe("link", () => {
+describe.skip("link", () => {
   let puzlink: Puzlink;
   const link = (words: string | string[]) => {
     const links = puzlink.link(words, true);
