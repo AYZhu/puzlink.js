@@ -4,6 +4,8 @@ import { LogNum } from "./logNum.js";
 import type { Wordlist } from "./wordlist.js";
 
 export const LETTERS = "abcdefghijklmnopqrstuvwxyz";
+export const VOWELS = "aeiou";
+export const CONSONANTS = "bcdfghjklmnpqrstvwxyz";
 
 /**
  * Info about the letter distribution of a wordlist.

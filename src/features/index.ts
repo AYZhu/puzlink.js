@@ -1,7 +1,8 @@
-import { KnownLogProbs } from "../data/knownLogProbs.js";
 import { LogNum } from "../lib/logNum.js";
 import { Wordlist } from "../lib/wordlist.js";
 import type { Linker } from "../linkers/index.js";
+import { letterSequenceFeatures } from "./letterSequence.js";
+import { KnownLogProbs } from "./logProbCache.js";
 import { otherFeatures } from "./other.js";
 import { wordplayFeatures } from "./wordplay.js";
 
@@ -30,10 +31,14 @@ export type Feature = {
 function featureLinker(
   wordlist: Wordlist,
   { name, property }: Feature,
-): Linker {
+): Linker | null {
   const featureLogProb = KnownLogProbs.get(name, () => {
     return wordlist.logProb((word) => property(word, wordlist) !== null);
   });
+  if (featureLogProb.toLog() === -Infinity) {
+    // We can't meaningfully make linkers out of zero-probability things.
+    return null;
+  }
 
   return {
     name,
@@ -64,9 +69,14 @@ function featureLinker(
 
 /** Feature-based linkers. */
 export function featureLinkers(wordlist: Wordlist): Linker[] {
-  return [...wordplayFeatures(), ...otherFeatures()].map((feature) =>
-    featureLinker(wordlist, feature),
-  );
+  return [
+    ...wordplayFeatures(),
+    ...otherFeatures(),
+    ...letterSequenceFeatures(),
+  ].flatMap((feature) => {
+    const linker = featureLinker(wordlist, feature);
+    return linker ? [linker] : [];
+  });
 }
 
 /**

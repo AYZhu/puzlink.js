@@ -4,66 +4,63 @@ import { otherFeatures } from "./other.js";
 import { makeFeatureGetter } from "./index.js";
 
 describe("otherFeatures", () => {
-  const featuresOf = makeFeatureGetter(
-    otherFeatures(),
-    Wordlist.from(["level", "lever", "abca", "abda", "noon", "stone"]),
-  );
+  const featuresOf = makeFeatureGetter(otherFeatures(), Wordlist.from([]));
 
-  test("palindromes features", () => {
+  test("other features", () => {
     expect(featuresOf("level")).toMatchInlineSnapshot(`
       {
-        "has e at index -2": "level has e at index -2",
-        "has e at index -4": "level has e at index -4",
-        "has e at index 2": "level has e at index 2",
-        "has e at index 4": "level has e at index 4",
-        "has l at index -1": "level has l at index -1",
-        "has l at index -5": "level has l at index -5",
-        "has l at index 1": "level has l at index 1",
-        "has l at index 5": "level has l at index 5",
-        "has v at index -3": "level has v at index -3",
-        "has v at index 3": "level has v at index 3",
-        "is almost palindrome": "level is a palindrome",
-        "is palindrome": "level is a palindrome",
+        "has e at index -2": "index(level, -2) = e",
+        "has e at index -4": "index(level, -4) = e",
+        "has e at index 2": "index(level, 2) = e",
+        "has e at index 4": "index(level, 4) = e",
+        "has l at index -1": "index(level, -1) = l",
+        "has l at index -5": "index(level, -5) = l",
+        "has l at index 1": "index(level, 1) = l",
+        "has l at index 5": "index(level, 5) = l",
+        "has v at index -3": "index(level, -3) = v",
+        "has v at index 3": "index(level, 3) = v",
+        "is almost palindrome": "level reversed = level",
+        "is palindrome": "level reversed = level",
       }
     `);
     expect(featuresOf("abca")).toMatchInlineSnapshot(`
       {
-        "has a at index -1": "abca has a at index -1",
-        "has a at index -4": "abca has a at index -4",
-        "has a at index 1": "abca has a at index 1",
-        "has a at index 4": "abca has a at index 4",
-        "has b at index -3": "abca has b at index -3",
-        "has b at index 2": "abca has b at index 2",
-        "has c at index -2": "abca has c at index -2",
-        "has c at index 3": "abca has c at index 3",
-        "is almost palindrome": "abca is almost a palindrome",
+        "has a at index -1": "index(abca, -1) = a",
+        "has a at index -4": "index(abca, -4) = a",
+        "has a at index 1": "index(abca, 1) = a",
+        "has a at index 4": "index(abca, 4) = a",
+        "has b at index -3": "index(abca, -3) = b",
+        "has b at index 2": "index(abca, 2) = b",
+        "has c at index -2": "index(abca, -2) = c",
+        "has c at index 3": "index(abca, 3) = c",
+        "is almost palindrome": "abca reversed = acba",
       }
     `);
     expect(featuresOf("abda")).toMatchInlineSnapshot(`
       {
-        "has a at index -1": "abda has a at index -1",
-        "has a at index -4": "abda has a at index -4",
-        "has a at index 1": "abda has a at index 1",
-        "has a at index 4": "abda has a at index 4",
-        "has b at index -3": "abda has b at index -3",
-        "has b at index 2": "abda has b at index 2",
-        "has d at index -2": "abda has d at index -2",
-        "has d at index 3": "abda has d at index 3",
-        "is almost palindrome": "abda is almost a palindrome",
+        "has a at index -1": "index(abda, -1) = a",
+        "has a at index -4": "index(abda, -4) = a",
+        "has a at index 1": "index(abda, 1) = a",
+        "has a at index 4": "index(abda, 4) = a",
+        "has b at index -3": "index(abda, -3) = b",
+        "has b at index 2": "index(abda, 2) = b",
+        "has d at index -2": "index(abda, -2) = d",
+        "has d at index 3": "index(abda, 3) = d",
+        "is almost palindrome": "abda reversed = adba",
       }
     `);
     expect(featuresOf("stone")).toMatchInlineSnapshot(`
       {
-        "has e at index -1": "stone has e at index -1",
-        "has e at index 5": "stone has e at index 5",
-        "has n at index -2": "stone has n at index -2",
-        "has n at index 4": "stone has n at index 4",
-        "has o at index -3": "stone has o at index -3",
-        "has o at index 3": "stone has o at index 3",
-        "has s at index -5": "stone has s at index -5",
-        "has s at index 1": "stone has s at index 1",
-        "has t at index -4": "stone has t at index -4",
-        "has t at index 2": "stone has t at index 2",
+        "has e at index -1": "index(stone, -1) = e",
+        "has e at index 5": "index(stone, 5) = e",
+        "has n at index -2": "index(stone, -2) = n",
+        "has n at index 4": "index(stone, 4) = n",
+        "has o at index -3": "index(stone, -3) = o",
+        "has o at index 3": "index(stone, 3) = o",
+        "has s at index -5": "index(stone, -5) = s",
+        "has s at index 1": "index(stone, 1) = s",
+        "has t at index -4": "index(stone, -4) = t",
+        "has t at index 2": "index(stone, 2) = t",
       }
     `);
   });

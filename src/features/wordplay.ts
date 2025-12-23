@@ -218,7 +218,7 @@ function transaddWith(letter: string): Feature {
     name: `has transadd ${letter}`,
     property: (slug, wordlist) => {
       const transadds = wordlist.anagrams(`${slug}${letter}`, {
-        strict: false,
+        loose: true,
       });
       return transadds.length === 0
         ? null
@@ -234,7 +234,7 @@ function transaddAny(): Feature {
       const allTransadds = [];
       for (const letter of LETTERS) {
         for (const transadd of wordlist.anagrams(`${slug}${letter}`, {
-          strict: false,
+          loose: true,
         })) {
           allTransadds.push(transadd);
         }
@@ -255,7 +255,7 @@ function transdeleteWith(letter: string): Feature {
         return null;
       }
       const transdeletes = wordlist.anagrams(slug.replace(letter, ""), {
-        strict: false,
+        loose: true,
       });
       return transdeletes.length === 0
         ? null
@@ -271,7 +271,7 @@ function transdeleteAny(): Feature {
       const allTransdeletes = [];
       for (const letter of new Set(slug)) {
         for (const transdelete of wordlist.anagrams(slug.replace(letter, ""), {
-          strict: false,
+          loose: true,
         })) {
           allTransdeletes.push(transdelete);
         }

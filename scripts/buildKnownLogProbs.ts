@@ -1,5 +1,5 @@
 import * as fs from "node:fs/promises";
-import { KnownLogProbs } from "../src/data/knownLogProbs.js";
+import { KnownLogProbs } from "../src/features/logProbCache.js";
 import { Puzlink } from "../src/index.js";
 import { Wordlist } from "../src/lib/wordlist.js";
 
@@ -30,9 +30,9 @@ KnownLogProbs.wrapCompute = (name, fn, existing) => {
   const duration = Date.now() - start;
   const tag =
     existing === undefined
-      ? "(new)"
-      : !result.closeTo(existing)
-        ? "(diff)"
+      ? `(new: ${result.toLog().toFixed(3)})`
+      : result.toLog() !== existing.toLog()
+        ? `(diff: ${result.toLog().toFixed(3)})`
         : "(same)";
   process.stdout.write(` in ${duration.toString()}ms ${tag}\n`);
   durations.push([duration, name]);
@@ -44,7 +44,7 @@ const newFile = [];
 
 const oldFile = await fs.readFile(knownLogProbsPath, "utf-8");
 for (const line of oldFile.split("\n")) {
-  if (line.startsWith("export const KnownLogProbs")) {
+  if (line.startsWith("export const knownLogProbs")) {
     break;
   }
   newFile.push(line);

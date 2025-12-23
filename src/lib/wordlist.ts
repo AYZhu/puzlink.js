@@ -125,7 +125,7 @@ export class Wordlist {
     }: { loose?: boolean; threshold?: number } = {},
   ): string[] {
     return (this.letterCounters.get(LetterBitset.from(slug).data) ?? [])
-      .filter((word) => !loose || word !== slug)
+      .filter((word) => loose || word !== slug)
       .map((word) => [word, this.cromulence.wordlist[word]!] as const)
       .filter((t) => t[1] > threshold)
       .sort((a, b) => b[1] - a[1])

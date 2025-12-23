@@ -6,6 +6,9 @@ import type { Feature } from "./index.js";
 // - scrabble score equal to [1..30]
 // - has equal numbers of dots and dashes in morse code
 // - has [1..30] { dots, dashes, dots and dashes } in morse code
+// - is a hill word (alpha, then reverse alpha)
+// - is a valley word (reverse alpha, then alpha)
+// - alternates vowels and consonants
 
 function hasAtIndex(letter: string, index: number): Feature {
   const textIndex = (index >= 0 ? index + 1 : index).toString();
@@ -13,7 +16,7 @@ function hasAtIndex(letter: string, index: number): Feature {
     name: `has ${letter} at index ${textIndex}`,
     property: (slug) => {
       return slug.at(index) === letter
-        ? `${slug} has ${letter} at index ${textIndex}`
+        ? `index(${slug}, ${textIndex}) = ${letter}`
         : null;
     },
   };
@@ -26,7 +29,7 @@ function palindrome(): Feature {
       for (let i = 0, j = slug.length - 1; i < j; i++, j--) {
         if (slug[i] !== slug[j]) return null;
       }
-      return `${slug} is a palindrome`;
+      return `${slug} reversed = ${slug}`;
     },
   };
 }
@@ -40,9 +43,9 @@ function almostPalindrome(): Feature {
         if (slug[i] !== slug[j]) mismatches++;
       }
       return mismatches === 1
-        ? `${slug} is almost a palindrome`
+        ? `${slug} reversed = ${slug.split("").reverse().join("")}`
         : mismatches === 0
-          ? `${slug} is a palindrome`
+          ? `${slug} reversed = ${slug}`
           : null;
     },
   };
