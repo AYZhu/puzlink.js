@@ -25,9 +25,9 @@ describe("Wordlist", () => {
   });
 
   test("isAnagram, isTransadd, isTransdelete", () => {
-    expect(words.anagrams("god")).toBe(["dog"]);
-    expect(words.anagrams("bat")).toBe([]);
-    expect(words.anagrams("ant")).toBe([]);
-    expect(words.anagrams("ant", { strict: false })).toBe(["ant"]);
+    expect(words.anagrams("god")).toEqual(["dog"]);
+    expect(words.anagrams("bat")).toEqual([]);
+    expect(words.anagrams("ant")).toEqual([]);
+    expect(words.anagrams("ant", { strict: false })).toEqual(["ant"]);
   });
 });
