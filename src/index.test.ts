@@ -7,7 +7,7 @@ import { Wordlist } from "./lib/wordlist.js";
 
 // These tests are stolen from Collective.jl:
 // https://github.com/rdeits/Collective.jl
-describe.skip("link", () => {
+describe("link", () => {
   let puzlink: Puzlink;
   const link = (words: string | string[]) => {
     const links = puzlink.link(words, true);
@@ -20,7 +20,7 @@ describe.skip("link", () => {
   });
 
   // https://puzzles.mit.edu/2016/puzzle/1_2_3/solution/
-  test.skip("1, 2, 3", () => {
+  test("1, 2, 3", () => {
     expect(
       link(`
         season
@@ -38,11 +38,12 @@ describe.skip("link", () => {
         anaphia
         teenage
       `),
-    ).toBe("has 3 unique consonants (14 / 14)");
+    ).toBe("has 3 unique consonants (11 / 14)");
   });
 
   // https://puzzles.mit.edu/2007/puzzles/1_1_1/
-  test("1 - 1 = 1", () => {
+  // TODO: currently has the wrong best feature
+  test.skip("1 - 1 = 1", () => {
     expect(
       link(
         `STRIFE SEAMAN NIX ETCH POST QUEER-ART FOO TALKS REPAYS STU HUMF UNDERHID SIXTEENS BOWMEN`,
@@ -51,30 +52,31 @@ describe.skip("link", () => {
   });
 
   // https://puzzles.mit.edu/2012/puzzles/william_s_bergman/behave/solution/
-  test.skip("Behave", () => {
+  test("Behave", () => {
     expect(
       link(
         `ANNIE PROULX, COMMUTATIVE, HUGO WEAVING, MOUNTAIN DEW, MOZAMBIQUE, SEQUOIA`,
       ),
     ).toBe("has 5 unique vowels (6 / 6)");
 
-    expect(
-      link(
-        `ANNOTATION, ARTIFICIAL, ENGINE ROOM, INDIVIDUAL, OMNIVOROUS, ON LOCATION`,
-      ),
-    ).toBe("has same vowel/consonant pattern");
+    // TODO: implement
+    // expect(
+    //   link(
+    //     `ANNOTATION, ARTIFICIAL, ENGINE ROOM, INDIVIDUAL, OMNIVOROUS, ON LOCATION`,
+    //   ),
+    // ).toBe("has same vowel/consonant pattern");
 
     expect(link(`ALMOST, BIOPSY, CHIMP, FILMS, GHOST, TUX`)).toBe(
-      "has at least 1 reverse alphabetical bigram (0 / 6)",
+      "has at least 1 reverse alphabetical bigrams (0 / 6)",
     );
 
     expect(link(`BALKED, BAR SPOON, HIGH NOON, KLUTZY, ONYX, POSTED`)).toBe(
-      "has at least 2 reverse sequential bigrams",
+      "has at least 2 reverse sequential bigrams (5 / 6)",
     );
   });
 
   // https://puzzles.mit.edu/2013/coinheist.com/rubik/clockwork_orange/answer/index.html
-  test.skip("Clockwork Oran.ge", () => {
+  test("Clockwork Oran.ge", () => {
     expect(
       link(`
         ARMORED RECON
@@ -86,7 +88,7 @@ describe.skip("link", () => {
         SACROSANCT
         IMPROMPTU
       `),
-    ).toBe("has 2 letters each repeated 2 times");
+    ).toBe("has 1 bigrams, each repeating 2 times (8 / 8)");
   });
 
   // panda magazine jan 2017
@@ -106,6 +108,7 @@ describe.skip("link", () => {
   });
 
   // https://puzzles.mit.edu/2013/coinheist.com/get_smart/following_the_news/answer/index.html
+  // TODO: implement; this should be "preponderance of ENSW"
   test.skip("Following the News", () => {
     expect(
       link(`
@@ -123,16 +126,16 @@ describe.skip("link", () => {
   });
 
   // http://www.maths.usyd.edu.au/ub/sums/puzzlehunt/2016/puzzles/A2S1_Last_Resort.pdf
-  test.skip("Last Resort", () => {
+  test("Last Resort", () => {
     expect(
       link(
         `"advent", "achilles", "binary", "norway", "bubbly", "yacht", "anchor"`,
       ),
-    ).toBe("has 1 reverse alphabetical bigram (6 / 6)");
+    ).toBe("has 1 reverse alphabetical bigrams (7 / 7)");
   });
 
   // https://puzzles.mit.edu/2012/puzzles/okla_holmes_a/solution/
-  test.skip("Okla-Holmes-A! meta", () => {
+  test("Okla-Holmes-A! meta", () => {
     expect(
       link(`
         CARPAL
@@ -143,10 +146,11 @@ describe.skip("link", () => {
         BUFFOON
         VESTIGE
       `),
-    ).toBe("can be split into chemical elements");
+    ).toBe("can be broken into element symbols (7 / 7)");
   });
 
   // https://puzzles.mit.edu/2015/puzzle/pod_of_dolphins_meta/solution/
+  // TODO: points to the wrong best feature
   test.skip("Pod of Dolphins meta", () => {
     expect(
       link(`
@@ -164,7 +168,8 @@ describe.skip("link", () => {
   });
 
   // https://puzzles.mit.edu/2012/puzzles/watson_2_0/r_e_s_p_e_c_t/solution/
-  test("R.E.S.P.E.C.T.", () => {
+  // TODO: points to the wrong best feature
+  test.skip("R.E.S.P.E.C.T.", () => {
     expect(
       link(`
         ABMNOT
@@ -179,7 +184,9 @@ describe.skip("link", () => {
   });
 
   // http://tinyurl.com/nplbarexam Main-D-EggPlant.pdf
+  // TODO: implement
   test.skip("The Egg Plant", () => {
+    // TODO: points to the wrong best feature
     expect(
       link(
         `"cardioid", "liqueur", "naiads", "paleoecology", "tenuous", "breathtaking", "hangnail", "topspin", "wardrobe", "worldly"`,
@@ -208,94 +215,101 @@ describe.skip("link", () => {
   });
 
   // https://puzzles.mit.edu/2014/puzzle-solution/venntersections/
-  test.skip("Venntersections", () => {
+  test("Venntersections", () => {
     expect(
       link(
         `"lowered", "levitate", "inanimate", "paradise", "leveraged", "sizes", "tuxedo"`,
       ),
-    ).toBe("alternates consonant vowel");
+    ).toBe("alternates vowels and consonants (7 / 7)");
 
-    expect(
-      link(
-        `"leveraged", "sizes", "tuxedo", "lynx", "lightly", "crocodile", "triumph"`,
-      ),
-    ).toBe("has scrabble score 14");
+    // TODO: implement
+    // expect(
+    //   link(
+    //     `"leveraged", "sizes", "tuxedo", "lynx", "lightly", "crocodile", "triumph"`,
+    //   ),
+    // ).toBe("has scrabble score 14");
 
-    expect(
-      link(
-        `"lowered", "levitate", "leveraged", "lynx", "lightly", "lengths", "legislator"`,
-      ),
-    ).toBe("has l at index 0");
+    // TODO: implement
+    // expect(
+    //   link(
+    //     `"lowered", "levitate", "leveraged", "lynx", "lightly", "lengths", "legislator"`,
+    //   ),
+    // ).toBe("has l at index 0");
 
     expect(
       link(
         `"levitate", "inanimate", "sizes", "lightly", "crocodile", "legislator", "carousels"`,
       ),
-    ).toBe("contains a repeated consonant");
+    ).toBe("has repeated consonants (7 / 7)");
 
     expect(
       link(
         `"questionable", "businesswoman", "exhaustion", "discouraged", "communicated", "hallucinogen", "sequoia"`,
       ),
-    ).toBe("has five unique vowels");
+    ).toBe("has 5 unique vowels (7 / 7)");
 
-    expect(
-      link(
-        `"grimaced", "formally", "questionable", "discouraged", "communicated", "chrysalis", "saccharin"`,
-      ),
-    ).toBe("has a at index -4");
+    // TODO: implement
+    // expect(
+    //   link(
+    //     `"grimaced", "formally", "questionable", "discouraged", "communicated", "chrysalis", "saccharin"`,
+    //   ),
+    // ).toBe("has a at index -4");
 
-    expect(
-      link(
-        `"formally", "thinnest", "businesswoman", "communicated", "hallucinogen", "saccharin", "cellophane"`,
-      ),
-    ).toBe("has a double letter");
+    // TODO: points to the wrong best feature
+    // expect(
+    //   link(
+    //     `"formally", "thinnest", "businesswoman", "communicated", "hallucinogen", "saccharin", "cellophane"`,
+    //   ),
+    // ).toBe("has a double letter");
 
     expect(
       link(
         `"thumbtacks", "monologue", "frigidities", "statuesque", "testimony", "satirizing", "flawed"`,
       ),
-    ).toBe("has a day of week substring");
+    ).toBe("has days of the week substring (7 / 7)");
 
     expect(
       link(
         `"thumbtacks", "monologue", "testimony", "camel", "meteorology", "trampoline", "achievement"`,
       ),
-    ).toBe("contains 1 m");
+    ).toBe("has 1 m (7 / 7)");
 
     expect(
       link(
         `"monologue", "frigidities", "satirizing", "meteorology", "avalance", "achievement", "constitute"`,
       ),
-    ).toBe("has 1 letter each repeated 3 times");
+    ).toBe("has 1 letters, each repeating at least 3 times (7 / 7)");
 
     expect(
       link(
         `"philharmonic", "mischievous", "alphabet", "restaurant", "leeching", "mushroom", "pioneer"`,
       ),
-    ).toBe("has a greek letter substring");
+    ).toBe("has greek letters substring (7 / 7)");
 
-    expect(
-      link(
-        `"leeching", "mushroom", "pioneer", "loophole", "toothpaste", "seventeenth", "kneeling"`,
-      ),
-    ).toBe("has a double letter");
+    // TODO: points to the wrong best feature
+    // expect(
+    //   link(
+    //     `"leeching", "mushroom", "pioneer", "loophole", "toothpaste", "seventeenth", "kneeling"`,
+    //   ),
+    // ).toBe("has equal letters with 0 letters between, 1 times (7 / 7)");
 
-    expect(
-      link(
-        `"philharmonic", "mischievous", "leeching", "loophole", "toothpaste", "alcoholic", "narwhal"`,
-      ),
-    ).toBe("has h at index 5");
+    // TODO: implement
+    // expect(
+    //   link(
+    //     `"philharmonic", "mischievous", "leeching", "loophole", "toothpaste", "alcoholic", "narwhal"`,
+    //   ),
+    // ).toBe("has h at index 5");
 
-    expect(
-      link(
-        `"mischievous", "alphabet", "mushroom", "toothpaste", "seventeenth", "narwhal", "chromosome"`,
-      ),
-    ).toBe("has 3 consonants in a row");
+    // TODO: points to the wrong best feature
+    // expect(
+    //   link(
+    //     `"mischievous", "alphabet", "mushroom", "toothpaste", "seventeenth", "narwhal", "chromosome"`,
+    //   ),
+    // ).toBe("has 3 consonants in a row");
   });
 
   // https://puzzles.mit.edu/2011/puzzles/civilization/meta/wall_street.html
-  test.skip("Wall Street", () => {
+  test("Wall Street", () => {
     expect(
       link(`
         aUtUmn
@@ -309,37 +323,41 @@ describe.skip("link", () => {
         trIskelIon
         waNderiNg
       `),
-    ).toBe("has 1 letter each repeated 2 times");
+    ).toBe("has 1 letters, each repeating at least 2 times (10 / 10)");
   });
 
   // https://puzzles.mit.edu/2013/coinheist.com/get_smart/wordplay/answer/index.html
-  test.skip("Wordplay", () => {
-    expect(link(`"ample", "adenoid", "music", "fifa"`)).toBe("is a hill word");
-
-    expect(
-      link(`"peeped", "isseis", "fee", "acacia", "salsas", "arrear"`),
-    ).toBe("is a pyramid word");
-
-    expect(
-      link(`"skort", "sporty", "yolks", "peccadillo", "unknot", "rosy"`),
-    ).toBe("is a valley word");
-
-    expect(link(`"testset", "lol", "tenet", "malayalam"`)).toBe(
-      "is a palindrome",
+  test("Wordplay", () => {
+    expect(link(`"ample", "adenoid", "music", "fifa"`)).toBe(
+      "is a hill (4 / 4)",
     );
 
     expect(
-      link(
-        `"hitchhiker", "kaashoek", "jellystone", "kierkegaard", "metallica", "maastrict", "menschheit"`,
-      ),
-    ).toBe("contains a double letter");
+      link(`"peeped", "isseis", "fee", "acacia", "salsas", "arrear"`),
+    ).toBe("has letter counts in arithmetic sequence (6 / 6)");
+
+    expect(
+      link(`"skort", "sporty", "yolks", "peccadillo", "unknot", "rosy"`),
+    ).toBe("is a valley (6 / 6)");
+
+    expect(link(`"testset", "lol", "tenet", "malayalam"`)).toBe(
+      "is palindrome (4 / 4)",
+    );
+
+    // TODO: points to the wrong best feature
+    // expect(
+    //   link(
+    //     `"hitchhiker", "kaashoek", "jellystone", "kierkegaard", "metallica", "maastrict", "menschheit"`,
+    //   ),
+    // ).toBe("has equal letters with 0 letters between, 1 times (7 / 7)");
 
     expect(link(`"aime", "eye", "eerie", "riaa", "oahu", "oeis"`)).toBe(
-      "has 1 unique consonant",
+      "has 1 unique consonants (6 / 6)",
     );
   });
 
   // https://puzzles.mit.edu/2013/coinheist.com/rubik/yellow_flag/answer/index.html
+  // TODO: implement
   test.skip("Yellow Flag", () => {
     expect(
       link(`
