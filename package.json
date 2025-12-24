@@ -11,6 +11,7 @@
     "build:dev": "esbuild src/browser.ts --bundle --outfile=dist/index.js --external:node:* --platform=browser --format=esm",
     "build:categories": "tsx scripts/buildCategories.ts",
     "build:knownLogProbs": "tsx scripts/buildKnownLogProbs.ts",
+    "build:extension": "sh extension.sh",
     "dev": "http-server . -o example",
     "format": "prettier --write .",
     "lint": "eslint",

@@ -1,0 +1,10 @@
+{
+  "name": "puzlink.js",
+  "description": "An extension for puzzle hunts.",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [ "clipboardRead" ],
+  "action": {
+    "default_popup": "index.html"
+  }
+}
