@@ -2,16 +2,22 @@
 <html>
     <head>
         <title>An example site using puzlink.js.</title>
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
         <div>
-            <textarea id="text"></textarea>
+        <h1>Hi!</h1>
+        <p>Auto-paste contents from clipboard on page load: <input id="paste" type="checkbox"/></p>
+        <br/>
+        <div id="main">
+            <textarea id="text" rows="20" cols="80"></textarea>
             <ol id="results"></ol>
 
             <script type="module">
                 import { puzlink } from "../dist/index.js";
 
                 const NUM_RESULTS = 10;
+                const CLIPBOARD = (localStorage.getItem("paste") === "true");
 
                 function parse() {
                     const text = document.getElementById("text").value;
@@ -24,6 +30,18 @@
 
                 const text = document.getElementById("text");
                 text.addEventListener("input", parse);
+                if (CLIPBOARD) {
+                    navigator.clipboard.readText().then((paste) => {
+                        text.value = paste;
+                        parse();
+                    })
+                }
+
+                const paste = document.getElementById("paste");
+                paste.checked = CLIPBOARD;
+                paste.addEventListener("change", () => {
+                    localStorage.setItem("paste", paste.checked ? "true" : "false");
+                });
 
                 const results = document.getElementById("results");
                 for(let i = 0; i < NUM_RESULTS; i++) {
@@ -32,6 +50,7 @@
                     results.appendChild(li);
                 }
             </script>
+        </div>
         </div>
     </body>
 </html>
