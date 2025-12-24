@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>An example site using puzlink.js.</title>
+    </head>
+    <body>
+        <div>
+            <textarea id="text"></textarea>
+            <ol id="results"></ol>
+
+            <script type="module">
+                import { puzlink } from "../dist/index.js";
+
+                const NUM_RESULTS = 10;
+
+                function parse() {
+                    const text = document.getElementById("text").value;
+                    const results = puzlink.link(text).slice(0, NUM_RESULTS);
+                    for (let i = 0; i < NUM_RESULTS; i++) {
+                        const li = document.getElementById(`item-${i}`);
+                        li.innerHTML = `<p>${results[i].name}<br/><em>${results[i].description}</em></p>`;
+                    }
+                }
+
+                const text = document.getElementById("text");
+                text.addEventListener("input", parse);
+
+                const results = document.getElementById("results");
+                for(let i = 0; i < NUM_RESULTS; i++) {
+                    const li = document.createElement("li");
+                    li.setAttribute("id", `item-${i}`);
+                    results.appendChild(li);
+                }
+            </script>
+        </div>
+    </body>
+</html>
