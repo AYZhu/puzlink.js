@@ -1,0 +1,32 @@
+import type { EvalSuite } from "../runEvals.js";
+
+export default {
+  name: "The Egg Plant",
+  source: "http://tinyurl.com/nplbarexam",
+  cases: [
+    {
+      slugs: `"cardioid", "liqueur", "naiads", "paleoecology", "tenuous", "breathtaking", "hangnail", "topspin", "wardrobe", "worldly"`,
+      expected: "has equal letters with 1 letters between, 1 times",
+    },
+    {
+      slugs: `"despumate", "motorcade", "overboard", "shared", "simoleon"`,
+      expected: "has an animal substring",
+    },
+    {
+      slugs: `"beggar", "deliver", "fiendish", "multiple", "swordsman"`,
+      expected: "has an animal subsequence",
+    },
+    {
+      slugs: `"brazen", "coatimundi", "hatred", "socket", "vestibule"`,
+      expected: "has a clothing substring",
+    },
+    {
+      slugs: `"edens", "emanate", "gratin", "rancho", "select"`,
+      expected: "is a word when first letter shifted",
+    },
+    {
+      slugs: `"earth", "ingles", "ought", "raked", "those"`,
+      expected: "is a word when last letter shifted",
+    },
+  ],
+} satisfies EvalSuite;

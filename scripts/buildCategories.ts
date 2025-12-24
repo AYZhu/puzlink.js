@@ -1,3 +1,4 @@
+import { iso31661 } from "iso-3166";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import * as url from "node:url";
@@ -12,17 +13,38 @@ const dataDir = path.resolve(
 const tsDir = path.join(dataDir, "categories");
 const txtDir = path.join(dataDir, "categories", "txt");
 
-for (const txtFileName of await fs.readdir(txtDir)) {
-  const tsFilePath = path.join(tsDir, txtFileName.replace(".txt", ".ts"));
-  console.log(`writing ${tsFilePath}`);
-  const txtLines = (await fs.readFile(path.join(txtDir, txtFileName), "utf-8"))
-    .split("\n")
+async function writeFile(name: string, lines: string[]) {
+  const cleanLines = lines
+    .map((line) => line.toLowerCase().replaceAll(/[^a-z]/g, ""))
     .filter((line) => line.length > 0);
   const tsLines = [];
   tsLines.push(`export default [`);
-  for (const line of txtLines) {
+  for (const line of cleanLines) {
     tsLines.push(`  "${line}",`);
   }
   tsLines.push(`];`);
-  await fs.writeFile(tsFilePath, tsLines.join("\n"), "utf-8");
+  await fs.writeFile(
+    path.join(tsDir, `${name}.ts`),
+    tsLines.join("\n"),
+    "utf-8",
+  );
 }
+
+// txt files:
+for (const txtFileName of await fs.readdir(txtDir)) {
+  console.log(`reading ${txtFileName}`);
+  const txtLines = (
+    await fs.readFile(path.join(txtDir, txtFileName), "utf-8")
+  ).split("\n");
+  await writeFile(txtFileName.replace(".txt", ""), txtLines);
+}
+
+// custom ones:
+await writeFile(
+  "countryAlpha2",
+  iso31661.map((country) => country.alpha2),
+);
+await writeFile(
+  "countryAlpha3",
+  iso31661.map((country) => country.alpha3),
+);
