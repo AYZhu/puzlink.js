@@ -1,33 +1,7 @@
-const greekLetters = [
-  "alpha",
-  "beta",
-  "gamma",
-  "delta",
-  "epsilon",
-  "zeta",
-  "eta",
-  "theta",
-  "iota",
-  "kappa",
-  "lambda",
-  "mu",
-  "nu",
-  "xi",
-  "omicron",
-  "pi",
-  "rho",
-  "sigma",
-  "tau",
-  "upsilon",
-  "phi",
-  "chi",
-  "psi",
-  "omega",
-];
+import greekLetters from "./categories/greekLetters.js";
+import solfege from "./categories/solfege.js";
 
-const solfege = ["do", "re", "me", "fa", "so", "la", "ti", "si"];
-
-export const categories: [name: string, items: string[]][] = [
-  ["greek letters", greekLetters],
-  ["solfege", solfege],
+export const categories: { name: string; items: string[] }[] = [
+  { name: "greek letters", items: greekLetters },
+  { name: "solfege", items: solfege },
 ];

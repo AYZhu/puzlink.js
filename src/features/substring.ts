@@ -28,10 +28,5 @@ function containsOne(category: { name: string; items: string[] }): Feature {
 }
 
 export function substringFeatures(): Feature[] {
-  return [
-    ...mapProduct(
-      containsOne,
-      categories.map(([name, items]) => ({ name, items })),
-    ),
-  ];
+  return [...mapProduct(containsOne, categories)];
 }
